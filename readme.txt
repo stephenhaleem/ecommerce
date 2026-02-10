@@ -10,7 +10,7 @@ This project teaches the fundamental concepts of modern web development:
 - **State Management**: Shopping cart with localStorage
 - **API Integration**: Connecting frontend to backend
 
----
+
 
 ## 📋 Prerequisites
 
