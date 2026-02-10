@@ -1,0 +1,344 @@
+// ========================================
+// SUPABASE CONFIGURATION
+// ========================================
+const SUPABASE_URL = "YOUR_SUPABASE_URL";
+const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+
+// Initialize Supabase client
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ========================================
+// STATE MANAGEMENT
+// ========================================
+let products = [];
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+let currentUser = null;
+
+// ========================================
+// AUTHENTICATION CHECK
+// ========================================
+async function checkAuth() {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    // User is not logged in, redirect to login page
+    window.location.href = "login.html";
+    return;
+  }
+
+  currentUser = user;
+  document.getElementById("userEmail").textContent = user.email;
+}
+
+// ========================================
+// LOGOUT
+// ========================================
+async function handleLogout() {
+  try {
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
+
+    // Clear cart
+    localStorage.removeItem("cart");
+
+    // Redirect to login
+    window.location.href = "login.html";
+  } catch (error) {
+    alert("Error signing out: " + error.message);
+  }
+}
+
+// ========================================
+// INITIALIZATION
+// ========================================
+async function init() {
+  // Check authentication first
+  await checkAuth();
+
+  // Load products
+  await loadProducts();
+
+  // Update cart UI
+  updateCartUI();
+}
+
+// ========================================
+// PRODUCTS FUNCTIONS
+// ========================================
+async function loadProducts() {
+  try {
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    products = data || [];
+
+    if (products.length === 0) {
+      products = getSampleProducts();
+    }
+
+    renderProducts();
+  } catch (error) {
+    console.error("Error loading products:", error);
+    products = getSampleProducts();
+    renderProducts();
+  }
+}
+
+function getSampleProducts() {
+  return [
+    {
+      id: 1,
+      name: "Wireless Headphones",
+      description: "Premium noise-cancelling headphones",
+      price: 199.99,
+      icon: "🎧",
+    },
+    {
+      id: 2,
+      name: "Smart Watch",
+      description: "Fitness tracking & notifications",
+      price: 299.99,
+      icon: "⌚",
+    },
+    {
+      id: 3,
+      name: "Laptop Stand",
+      description: "Ergonomic aluminum stand",
+      price: 49.99,
+      icon: "💻",
+    },
+    {
+      id: 4,
+      name: "Mechanical Keyboard",
+      description: "RGB backlit gaming keyboard",
+      price: 149.99,
+      icon: "⌨️",
+    },
+    {
+      id: 5,
+      name: "Wireless Mouse",
+      description: "Precision optical mouse",
+      price: 79.99,
+      icon: "🖱️",
+    },
+    {
+      id: 6,
+      name: "USB-C Hub",
+      description: "7-in-1 multiport adapter",
+      price: 59.99,
+      icon: "🔌",
+    },
+    {
+      id: 7,
+      name: "Webcam 4K",
+      description: "Crystal clear video calls",
+      price: 129.99,
+      icon: "📹",
+    },
+    {
+      id: 8,
+      name: "Phone Stand",
+      description: "Adjustable desk stand",
+      price: 24.99,
+      icon: "📱",
+    },
+  ];
+}
+
+function renderProducts() {
+  const loadingProducts = document.getElementById("loadingProducts");
+  const productsGrid = document.getElementById("productsGrid");
+
+  loadingProducts.style.display = "none";
+  productsGrid.style.display = "grid";
+  productsGrid.innerHTML = "";
+
+  products.forEach((product) => {
+    const productCard = document.createElement("div");
+    productCard.className = "product-card";
+    productCard.innerHTML = `
+                    <div class="product-image">${product.icon || "📦"}</div>
+                    <div class="product-info">
+                        <h3 class="product-name">${product.name}</h3>
+                        <p class="product-description">${product.description}</p>
+                        <div class="product-footer">
+                            <div class="product-price">$${product.price.toFixed(2)}</div>
+                            <button class="add-to-cart" onclick="addToCart(${product.id})">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                `;
+    productsGrid.appendChild(productCard);
+  });
+}
+
+// ========================================
+// CART FUNCTIONS
+// ========================================
+function addToCart(productId) {
+  const product = products.find((p) => p.id === productId);
+  if (!product) return;
+
+  const existingItem = cart.find((item) => item.id === productId);
+
+  if (existingItem) {
+    existingItem.quantity += 1;
+  } else {
+    cart.push({
+      ...product,
+      quantity: 1,
+    });
+  }
+
+  saveCart();
+  updateCartUI();
+
+  // Show feedback
+  const btn = event.target;
+  const originalText = btn.textContent;
+  btn.textContent = "Added! ✓";
+  btn.style.background = "var(--success)";
+  setTimeout(() => {
+    btn.textContent = originalText;
+    btn.style.background = "";
+  }, 1000);
+}
+
+function updateQuantity(productId, change) {
+  const item = cart.find((item) => item.id === productId);
+  if (!item) return;
+
+  item.quantity += change;
+
+  if (item.quantity <= 0) {
+    removeFromCart(productId);
+  } else {
+    saveCart();
+    updateCartUI();
+  }
+}
+
+function removeFromCart(productId) {
+  cart = cart.filter((item) => item.id !== productId);
+  saveCart();
+  updateCartUI();
+}
+
+function saveCart() {
+  localStorage.setItem("cart", JSON.stringify(cart));
+}
+
+function updateCartUI() {
+  const cartCount = document.getElementById("cartCount");
+  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+  cartCount.textContent = totalItems;
+
+  const cartItems = document.getElementById("cartItems");
+  const cartTotal = document.getElementById("cartTotal");
+  const checkoutBtn = document.getElementById("checkoutBtn");
+
+  if (cart.length === 0) {
+    cartItems.innerHTML = `
+                    <div class="empty-cart">
+                        <div class="empty-cart-icon">🛒</div>
+                        <h3>Your cart is empty</h3>
+                        <p>Add some products to get started!</p>
+                    </div>
+                `;
+    cartTotal.style.display = "none";
+    checkoutBtn.style.display = "none";
+  } else {
+    cartItems.innerHTML = cart
+      .map(
+        (item) => `
+                    <div class="cart-item">
+                        <div class="cart-item-image">${item.icon || "📦"}</div>
+                        <div class="cart-item-info">
+                            <div class="cart-item-name">${item.name}</div>
+                            <div class="cart-item-price">$${item.price.toFixed(2)}</div>
+                            <div class="quantity-controls">
+                                <button class="quantity-btn" onclick="updateQuantity(${item.id}, -1)">-</button>
+                                <span class="quantity">${item.quantity}</span>
+                                <button class="quantity-btn" onclick="updateQuantity(${item.id}, 1)">+</button>
+                            </div>
+                            <button class="remove-btn" onclick="removeFromCart(${item.id})">Remove</button>
+                        </div>
+                    </div>
+                `,
+      )
+      .join("");
+
+    const total = cart.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0,
+    );
+    document.getElementById("totalPrice").textContent = `$${total.toFixed(2)}`;
+    cartTotal.style.display = "flex";
+    checkoutBtn.style.display = "block";
+  }
+}
+
+function toggleCart() {
+  const modal = document.getElementById("cartModal");
+  modal.classList.toggle("active");
+}
+
+document
+  .getElementById("cartModal")
+  .addEventListener("click", function (event) {
+    if (event.target === this) {
+      toggleCart();
+    }
+  });
+
+// ========================================
+// CHECKOUT
+// ========================================
+async function handleCheckout() {
+  if (cart.length === 0) return;
+
+  try {
+    const orderData = {
+      user_id: currentUser.id,
+      user_email: currentUser.email,
+      items: cart,
+      total: cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
+      status: "pending",
+    };
+
+    const { data, error } = await supabase
+      .from("orders")
+      .insert([orderData])
+      .select();
+
+    if (error) throw error;
+
+    alert(
+      "🎉 Order placed successfully!\n\nOrder ID: " +
+        data[0].id +
+        "\n\nThank you for your purchase!",
+    );
+
+    cart = [];
+    saveCart();
+    updateCartUI();
+    toggleCart();
+  } catch (error) {
+    console.error("Checkout error:", error);
+    alert("✓ Order processed! (Supabase table may not be configured yet)");
+    cart = [];
+    saveCart();
+    updateCartUI();
+    toggleCart();
+  }
+}
+
+// Initialize
+init();
