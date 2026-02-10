@@ -1,6 +1,3 @@
-// Supabase Configuration
-// IMPORTANT: Replace these with your actual Supabase credentials
-// You can find these in: Supabase Dashboard > Project Settings > API
 
 // Only initialize if not already initialized
 if (typeof supabase === 'undefined') {
