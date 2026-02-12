@@ -171,7 +171,7 @@ function renderProducts() {
       const productCard = document.createElement("div");
       productCard.className = "product-card";
       productCard.innerHTML = `
-                    <div class="product-image">${product.icon || "📦"}</div>
+                    <div class="product-image">${product.icon || ""}</div>
                     <div class="product-info">
                         <h3 class="product-name">${product.name}</h3>
                         <p class="product-description">${product.description}</p>
