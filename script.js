@@ -1,11 +1,12 @@
 // ========================================
 // SUPABASE CONFIGURATION
 // ========================================
-const SUPABASE_URL = "YOUR_SUPABASE_URL";
-const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+const SUPABASE_URL = "https://rdnkijeggxngvrfwuobo.supabase.co";
+const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJkbmtpamVnZ3huZ3ZyZnd1b2JvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAwMjExOTgsImV4cCI6MjA4NTU5NzE5OH0.7mPgjG1T95MH1xaL2HFySm2GGjSt_BDZCJcI5McWth0";
 
 // Initialize Supabase client
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ========================================
 // STATE MANAGEMENT
@@ -20,7 +21,7 @@ let currentUser = null;
 async function checkAuth() {
   const {
     data: { user },
-  } = await supabase.auth.getUser();
+  } = await client.auth.getUser();
 
   if (!user) {
     // User is not logged in, redirect to login page
@@ -37,7 +38,7 @@ async function checkAuth() {
 // ========================================
 async function handleLogout() {
   try {
-    const { error } = await supabase.auth.signOut();
+    const { error } = await client.auth.signOut();
     if (error) throw error;
 
     // Clear cart
@@ -69,7 +70,7 @@ async function init() {
 // ========================================
 async function loadProducts() {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await client
       .from("products")
       .select("*")
       .order("created_at", { ascending: false });
@@ -313,7 +314,7 @@ async function handleCheckout() {
       status: "pending",
     };
 
-    const { data, error } = await supabase
+    const { data, error } = await client
       .from("orders")
       .insert([orderData])
       .select();
