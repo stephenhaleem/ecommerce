@@ -1,0 +1,2267 @@
+# Complete E-Commerce Website - Class Notes
+
+## 📚 Course Overview
+
+**What You're Building:** A complete online store with user accounts, product catalog, shopping cart, and checkout.
+
+**What You'll Learn:**
+- How websites work (HTML, CSS, JavaScript)
+- User authentication (sign up, login, logout)
+- Database operations (storing and retrieving data)
+- State management (keeping track of shopping cart)
+- Real-world web development workflow
+
+---
+
+## 🎯 Part 1: Understanding the Big Picture
+
+### How Does a Website Work?
+
+Think of a website like a restaurant:
+
+1. **Frontend (HTML/CSS/JavaScript)** = The dining area
+   - What customers see and interact with
+   - The menu, tables, decorations
+   - In our case: login page, product display, shopping cart
+
+2. **Backend (Supabase Database)** = The kitchen
+   - Where data is stored and processed
+   - Keeps track of users, products, orders
+   - Like a restaurant's inventory and recipes
+
+3. **Authentication** = The host checking reservations
+   - Verifies who you are
+   - Decides what you can access
+   - Keeps your account secure
+
+### Our Project Structure
+
+```
+📁 E-Commerce Project
+├── login.html          → Entry point (sign up/sign in page)
+├── store.html          → Main store (protected, login required)
+├── script.js           → JavaScript logic for store
+├── styles.css          → Styling (optional separate file)
+└── readme.txt          → Setup instructions
+```
+
+**Flow:**
+1. User visits `login.html` first
+2. Signs up or signs in
+3. Gets redirected to `store.html`
+4. Can browse products, add to cart, checkout
+5. Can sign out (returns to `login.html`)
+
+---
+
+## 🔑 Part 2: Understanding Authentication
+
+### What is Authentication?
+
+**Simple Definition:** Proving you are who you say you are.
+
+**Real-Life Example:**
+- Showing your ID to enter a club
+- Entering a password to unlock your phone
+- Using a key to open your house
+
+### How It Works in Our Project
+
+```javascript
+// 1. User creates account
+Sign Up Form → Supabase → Creates user in database
+
+// 2. User logs in
+Email + Password → Supabase checks → Returns session token
+
+// 3. Session token = "VIP pass"
+Every page checks: "Do you have a valid VIP pass?"
+If YES → You can access the store
+If NO → Redirect to login
+```
+
+### The Code Behind It
+
+**Creating an Account (signup):**
+```javascript
+// What happens when user clicks "Create Account"
+const { data, error } = await client.auth.signUp({
+  email: 'user@example.com',
+  password: 'securepassword123',
+  options: {
+    data: {
+      full_name: 'John Doe'  // Extra info we want to save
+    }
+  }
+});
+```
+
+**Signing In:**
+```javascript
+// What happens when user clicks "Sign In"
+const { data, error } = await client.auth.signInWithPassword({
+  email: 'user@example.com',
+  password: 'securepassword123'
+});
+
+// If successful, Supabase gives us back:
+// - User object (id, email, name)
+// - Session token (the VIP pass)
+```
+
+**Checking If User Is Logged In:**
+```javascript
+// Every protected page runs this first
+const { data: { user } } = await client.auth.getUser();
+
+if (!user) {
+  // No VIP pass = kick them out
+  window.location.href = 'login.html';
+}
+```
+
+---
+
+## 🎨 Part 3: HTML Fundamentals
+
+### What is HTML?
+
+**HTML = HyperText Markup Language**
+
+Think of it as the **skeleton** of a webpage. It defines structure, not appearance.
+
+### Basic HTML Structure
+
+```html
+<!DOCTYPE html>                    <!-- Tells browser this is HTML5 -->
+<html lang="en">                   <!-- Root element -->
+  <head>                           <!-- Metadata (not visible) -->
+    <title>Page Title</title>      <!-- Shows in browser tab -->
+    <link rel="stylesheet">        <!-- Link to CSS -->
+    <script src="...">             <!-- Link to JavaScript -->
+  </head>
+  <body>                           <!-- Visible content -->
+    <h1>Welcome</h1>              <!-- Heading -->
+    <p>This is a paragraph</p>    <!-- Text -->
+    <button>Click me</button>     <!-- Interactive element -->
+  </body>
+</html>
+```
+
+### HTML Elements Used in Our Project
+
+#### 1. **Forms** (Collecting user input)
+
+```html
+<form id="signinForm" onsubmit="handleSignIn(event)">
+  <!-- Form container that submits data -->
+  
+  <div class="form-group">
+    <label for="email">Email</label>          <!-- Label -->
+    <input 
+      type="email"                             <!-- Input type -->
+      id="email"                               <!-- Unique ID -->
+      placeholder="your@email.com"             <!-- Hint text -->
+      required                                 <!-- Must fill in -->
+    />
+  </div>
+  
+  <button type="submit">Sign In</button>
+</form>
+```
+
+**What Each Part Does:**
+- `<form>` → Container for inputs
+- `<label>` → Describes the input
+- `<input>` → Where user types
+- `type="email"` → Validates email format
+- `required` → Can't submit empty
+- `onsubmit` → What function to call when submitted
+
+#### 2. **Divs** (Containers for layout)
+
+```html
+<div class="product-card">          <!-- Container -->
+  <div class="product-image">🎧</div>
+  <div class="product-info">
+    <h3>Wireless Headphones</h3>
+    <p>Premium noise-cancelling</p>
+    <div class="product-price">$199.99</div>
+  </div>
+</div>
+```
+
+**Think of divs as boxes:** You put things in boxes to organize them.
+
+#### 3. **Semantic Elements**
+
+```html
+<header>                    <!-- Top of page -->
+  <nav>                     <!-- Navigation links -->
+    <a href="#">Home</a>
+  </nav>
+</header>
+
+<section class="hero">      <!-- A distinct section -->
+  <h1>Welcome</h1>
+</section>
+```
+
+**Why use semantic elements?**
+- Makes code readable
+- Helps search engines understand your page
+- Improves accessibility for screen readers
+
+---
+
+## 🎨 Part 4: CSS Fundamentals
+
+### What is CSS?
+
+**CSS = Cascading Style Sheets**
+
+Think of it as the **clothing and makeup** of your webpage. It makes things look good.
+
+### How CSS Works
+
+```css
+selector {
+  property: value;
+}
+```
+
+**Example:**
+```css
+.product-card {                    /* Selector: which element */
+  background: white;               /* Property: value */
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+```
+
+### CSS Selectors Explained
+
+```css
+/* 1. CLASS SELECTOR (reusable) */
+.product-card { }        /* Targets <div class="product-card"> */
+
+/* 2. ID SELECTOR (unique) */
+#cartModal { }           /* Targets <div id="cartModal"> */
+
+/* 3. ELEMENT SELECTOR (all of that type) */
+button { }               /* Targets ALL <button> elements */
+
+/* 4. COMBINATION */
+.product-card button {   /* Targets buttons INSIDE product-card */
+  background: red;
+}
+```
+
+### The Box Model (Most Important CSS Concept)
+
+Every element is a box with these layers:
+
+```
+┌─────────────────────────────────┐
+│        MARGIN (outside)         │  ← Space outside element
+│  ┌───────────────────────────┐  │
+│  │     BORDER (outline)      │  │  ← Border around element
+│  │  ┌─────────────────────┐  │  │
+│  │  │  PADDING (inside)   │  │  │  ← Space inside element
+│  │  │  ┌───────────────┐  │  │  │
+│  │  │  │   CONTENT     │  │  │  │  ← Actual content
+│  │  │  └───────────────┘  │  │  │
+│  │  └─────────────────────┘  │  │
+│  └───────────────────────────┘  │
+└─────────────────────────────────┘
+```
+
+**In CSS:**
+```css
+.product-card {
+  width: 300px;              /* Content width */
+  padding: 1.5rem;           /* Space inside */
+  border: 2px solid black;   /* Border */
+  margin: 1rem;              /* Space outside */
+}
+```
+
+### CSS Layouts
+
+#### 1. **Flexbox** (One-dimensional layout)
+
+```css
+.nav-links {
+  display: flex;              /* Make it flexible */
+  gap: 2rem;                  /* Space between items */
+  align-items: center;        /* Vertical alignment */
+  justify-content: space-between;  /* Horizontal spacing */
+}
+```
+
+**Use flexbox for:**
+- Navigation bars
+- Buttons in a row
+- Centering content
+
+#### 2. **Grid** (Two-dimensional layout)
+
+```css
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);  /* 3 equal columns */
+  gap: 2rem;                              /* Space between */
+}
+```
+
+**Use grid for:**
+- Product catalogs
+- Image galleries
+- Card layouts
+
+### CSS Variables (Custom Properties)
+
+```css
+:root {
+  --primary: #ff6b35;        /* Define once */
+  --secondary: #004e89;
+}
+
+button {
+  background: var(--primary);  /* Use anywhere */
+}
+
+.logo {
+  color: var(--primary);       /* Consistent colors */
+}
+```
+
+**Benefits:**
+- Change one value, updates everywhere
+- Easy to maintain
+- Creates consistent design
+
+### Responsive Design
+
+```css
+/* Mobile-first approach */
+.products-grid {
+  grid-template-columns: 1fr;  /* 1 column on mobile */
+}
+
+/* Tablet and up */
+@media (min-width: 768px) {
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);  /* 2 columns */
+  }
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+  .products-grid {
+    grid-template-columns: repeat(3, 1fr);  /* 3 columns */
+  }
+}
+```
+
+---
+
+## 💻 Part 5: JavaScript Fundamentals
+
+### What is JavaScript?
+
+**JavaScript makes pages interactive.**
+
+Without JS: Static page (like a brochure)
+With JS: Dynamic page (like a video game)
+
+### Variables and Data Types
+
+```javascript
+// VARIABLES (containers for data)
+let userName = "John";              // String (text)
+let userAge = 25;                   // Number
+let isLoggedIn = true;              // Boolean (true/false)
+let cart = [];                      // Array (list)
+let product = {                     // Object (group of properties)
+  name: "Headphones",
+  price: 199.99
+};
+
+// CONSTANTS (never change)
+const API_KEY = "abc123";           // Always same value
+```
+
+### Functions (Reusable Code Blocks)
+
+```javascript
+// FUNCTION DECLARATION
+function addToCart(productId) {
+  // Code to add item
+  console.log("Added product:", productId);
+}
+
+// FUNCTION CALL
+addToCart(5);  // Output: "Added product: 5"
+
+
+// FUNCTION WITH RETURN VALUE
+function calculateTotal(cart) {
+  let total = 0;
+  for (let item of cart) {
+    total += item.price * item.quantity;
+  }
+  return total;  // Sends value back
+}
+
+let cartTotal = calculateTotal(cart);
+console.log("Total:", cartTotal);
+```
+
+### Arrays (Lists)
+
+```javascript
+let cart = [];  // Empty cart
+
+// ADD ITEMS
+cart.push({ name: "Headphones", price: 199.99 });
+cart.push({ name: "Mouse", price: 79.99 });
+
+// ACCESS ITEMS
+console.log(cart[0]);  // First item
+console.log(cart[1]);  // Second item
+
+// LOOP THROUGH ITEMS
+cart.forEach(function(item) {
+  console.log(item.name, item.price);
+});
+
+// FIND ITEM
+let found = cart.find(item => item.name === "Mouse");
+
+// REMOVE ITEM
+cart = cart.filter(item => item.name !== "Mouse");
+```
+
+### Objects (Grouped Data)
+
+```javascript
+let product = {
+  id: 1,
+  name: "Wireless Headphones",
+  price: 199.99,
+  inStock: true,
+  
+  // Objects can have functions too
+  getInfo: function() {
+    return this.name + " - $" + this.price;
+  }
+};
+
+// ACCESS PROPERTIES
+console.log(product.name);        // "Wireless Headphones"
+console.log(product.price);       // 199.99
+console.log(product.getInfo());   // "Wireless Headphones - $199.99"
+
+// MODIFY PROPERTIES
+product.price = 179.99;
+product.inStock = false;
+```
+
+### Async/Await (Handling Delays)
+
+```javascript
+// OLD WAY (Callback Hell)
+client.auth.signIn(email, password)
+  .then(result => {
+    return client.from('products').select();
+  })
+  .then(products => {
+    console.log(products);
+  })
+  .catch(error => {
+    console.log(error);
+  });
+
+// NEW WAY (Much cleaner!)
+async function loadData() {
+  try {
+    // Wait for login
+    const user = await client.auth.signIn(email, password);
+    
+    // Then wait for products
+    const products = await client.from('products').select();
+    
+    console.log(products);
+  } catch (error) {
+    console.log(error);
+  }
+}
+```
+
+**Why async/await?**
+- Database calls take time
+- API requests take time
+- We need to WAIT for them to finish
+- `await` pauses the function until done
+
+### DOM Manipulation (Changing HTML with JS)
+
+```javascript
+// GET ELEMENTS
+let button = document.getElementById('submitBtn');
+let email = document.getElementById('email').value;
+let cards = document.querySelectorAll('.product-card');
+
+// CHANGE CONTENT
+document.getElementById('userName').textContent = "John Doe";
+document.getElementById('total').innerHTML = "$299.99";
+
+// CHANGE STYLES
+button.style.background = "red";
+button.style.color = "white";
+
+// ADD/REMOVE CLASSES
+button.classList.add('active');
+button.classList.remove('disabled');
+button.classList.toggle('hidden');  // Add if not there, remove if there
+
+// CREATE NEW ELEMENTS
+let newDiv = document.createElement('div');
+newDiv.className = 'product-card';
+newDiv.innerHTML = '<h3>New Product</h3>';
+document.getElementById('productsGrid').appendChild(newDiv);
+```
+
+### Event Handling
+
+```javascript
+// CLICK EVENT
+document.getElementById('loginBtn').addEventListener('click', function() {
+  console.log('Button clicked!');
+});
+
+// FORM SUBMIT
+document.getElementById('loginForm').addEventListener('submit', function(event) {
+  event.preventDefault();  // Stop page refresh
+  
+  let email = document.getElementById('email').value;
+  let password = document.getElementById('password').value;
+  
+  handleLogin(email, password);
+});
+
+// INPUT CHANGE
+document.getElementById('searchBox').addEventListener('input', function(event) {
+  let searchTerm = event.target.value;
+  filterProducts(searchTerm);
+});
+```
+
+---
+
+## 🗄️ Part 6: Database Concepts (Supabase)
+
+### What is a Database?
+
+**Simple Definition:** An organized collection of data.
+
+**Real-Life Example:**
+- Filing cabinet with folders
+- Excel spreadsheet
+- Contact list in your phone
+
+### Database Tables
+
+Think of tables like Excel sheets:
+
+```
+USERS TABLE
+┌────┬──────────────┬────────────────────┬──────────┐
+│ id │ full_name    │ email              │ password │
+├────┼──────────────┼────────────────────┼──────────┤
+│ 1  │ John Doe     │ john@email.com     │ ******** │
+│ 2  │ Jane Smith   │ jane@email.com     │ ******** │
+└────┴──────────────┴────────────────────┴──────────┘
+
+PRODUCTS TABLE
+┌────┬────────────────┬───────┬──────────────────────────┐
+│ id │ name           │ price │ description              │
+├────┼────────────────┼───────┼──────────────────────────┤
+│ 1  │ Headphones     │ 199   │ Premium noise-cancelling │
+│ 2  │ Mouse          │ 79    │ Wireless optical mouse   │
+└────┴────────────────┴───────┴──────────────────────────┘
+
+ORDERS TABLE
+┌────┬─────────┬────────────────┬───────┬────────────┐
+│ id │ user_id │ items (JSON)   │ total │ created_at │
+├────┼─────────┼────────────────┼───────┼────────────┤
+│ 1  │ 1       │ [{...}, {...}] │ 278   │ 2024-01-15 │
+└────┴─────────┴────────────────┴───────┴────────────┘
+```
+
+### SQL (Structured Query Language)
+
+SQL is how you talk to databases.
+
+#### Creating Tables
+
+```sql
+CREATE TABLE products (
+  id BIGSERIAL PRIMARY KEY,           -- Auto-incrementing ID
+  name TEXT NOT NULL,                 -- Required text
+  description TEXT,                   -- Optional text
+  price DECIMAL(10, 2) NOT NULL,     -- Number with 2 decimals
+  icon TEXT DEFAULT '📦',            -- Default value
+  stock INTEGER DEFAULT 100,          -- Whole number
+  created_at TIMESTAMP DEFAULT NOW()  -- Auto timestamp
+);
+```
+
+#### Reading Data (SELECT)
+
+```sql
+-- Get all products
+SELECT * FROM products;
+
+-- Get specific columns
+SELECT name, price FROM products;
+
+-- Get with condition
+SELECT * FROM products WHERE price < 100;
+
+-- Get and sort
+SELECT * FROM products ORDER BY price DESC;
+
+-- Get limited results
+SELECT * FROM products LIMIT 10;
+```
+
+#### Inserting Data (INSERT)
+
+```sql
+-- Add one product
+INSERT INTO products (name, description, price, icon)
+VALUES ('Wireless Mouse', 'Precision optical mouse', 79.99, '🖱️');
+
+-- Add multiple products
+INSERT INTO products (name, price, icon) VALUES
+  ('Keyboard', 149.99, '⌨️'),
+  ('Monitor', 399.99, '🖥️'),
+  ('Webcam', 129.99, '📹');
+```
+
+#### Updating Data (UPDATE)
+
+```sql
+-- Update one field
+UPDATE products 
+SET price = 89.99 
+WHERE id = 5;
+
+-- Update multiple fields
+UPDATE products 
+SET price = 179.99, stock = 50 
+WHERE name = 'Headphones';
+```
+
+#### Deleting Data (DELETE)
+
+```sql
+-- Delete one item
+DELETE FROM products WHERE id = 5;
+
+-- Delete multiple items
+DELETE FROM products WHERE price < 50;
+
+-- Delete all (careful!)
+DELETE FROM products;
+```
+
+### Using Supabase in JavaScript
+
+```javascript
+// INITIALIZE (do once)
+const client = supabase.createClient(URL, KEY);
+
+// READ DATA
+const { data, error } = await client
+  .from('products')
+  .select('*');
+
+// READ WITH FILTER
+const { data, error } = await client
+  .from('products')
+  .select('*')
+  .eq('price', 199.99);  // WHERE price = 199.99
+
+// INSERT DATA
+const { data, error } = await client
+  .from('products')
+  .insert([
+    { name: 'New Product', price: 99.99 }
+  ]);
+
+// UPDATE DATA
+const { data, error } = await client
+  .from('products')
+  .update({ price: 89.99 })
+  .eq('id', 5);
+
+// DELETE DATA
+const { data, error } = await client
+  .from('products')
+  .delete()
+  .eq('id', 5);
+```
+
+---
+
+## 🔐 Part 7: Row Level Security (RLS)
+
+### What is RLS?
+
+**Simple Definition:** Rules that control who can access what data.
+
+**Real-Life Example:**
+- You can only see YOUR bank account, not others
+- Students can see their grades, teachers can see all grades
+- You can edit your profile, but not someone else's
+
+### RLS Policies in Our Project
+
+```sql
+-- PRODUCTS: Anyone can view, authenticated users can add
+CREATE POLICY "Anyone can view products" 
+  ON products FOR SELECT 
+  USING (true);  -- true = everyone
+
+CREATE POLICY "Authenticated users can insert products" 
+  ON products FOR INSERT 
+  WITH CHECK (auth.role() = 'authenticated');
+
+
+-- ORDERS: Users can only see their own orders
+CREATE POLICY "Users can view their own orders" 
+  ON orders FOR SELECT 
+  USING (auth.uid() = user_id);  -- Only if their ID matches
+
+CREATE POLICY "Users can insert their own orders" 
+  ON orders FOR INSERT 
+  WITH CHECK (auth.uid() = user_id);
+```
+
+**What This Means:**
+- Anyone can browse products (even without login)
+- Only logged-in users can add products
+- Users can only see THEIR OWN orders (privacy!)
+- Users can only create orders for themselves (security!)
+
+---
+
+## 🛒 Part 8: Shopping Cart Implementation
+
+### How the Cart Works
+
+```javascript
+// CART STRUCTURE
+let cart = [
+  {
+    id: 1,
+    name: "Headphones",
+    price: 199.99,
+    quantity: 2,
+    icon: "🎧"
+  },
+  {
+    id: 3,
+    name: "Mouse",
+    price: 79.99,
+    quantity: 1,
+    icon: "🖱️"
+  }
+];
+```
+
+### localStorage (Browser Storage)
+
+**What is localStorage?**
+- Storage space in your browser
+- Data persists even after closing browser
+- Limited to ~5-10MB
+- Stores only strings (text)
+
+```javascript
+// SAVE TO LOCALSTORAGE
+localStorage.setItem('cart', JSON.stringify(cart));
+// JSON.stringify converts object to string
+
+// GET FROM LOCALSTORAGE
+let cart = JSON.parse(localStorage.getItem('cart')) || [];
+// JSON.parse converts string back to object
+// || [] means "if nothing found, use empty array"
+
+// REMOVE FROM LOCALSTORAGE
+localStorage.removeItem('cart');
+
+// CLEAR ALL
+localStorage.clear();
+```
+
+### Add to Cart Function (Explained)
+
+```javascript
+function addToCart(productId) {
+  // 1. Find the product from our products array
+  const product = products.find(p => p.id === productId);
+  if (!product) return;  // Exit if product not found
+  
+  // 2. Check if already in cart
+  const existingItem = cart.find(item => item.id === productId);
+  
+  if (existingItem) {
+    // Already in cart → increase quantity
+    existingItem.quantity += 1;
+  } else {
+    // Not in cart → add new item
+    cart.push({
+      ...product,        // Copy all product properties
+      quantity: 1        // Start with quantity 1
+    });
+  }
+  
+  // 3. Save to localStorage
+  saveCart();
+  
+  // 4. Update UI to show new cart
+  updateCartUI();
+  
+  // 5. Visual feedback (button changes)
+  showSuccessMessage();
+}
+```
+
+### Update Quantity Function
+
+```javascript
+function updateQuantity(productId, change) {
+  // change = +1 or -1
+  
+  // 1. Find item in cart
+  const item = cart.find(item => item.id === productId);
+  if (!item) return;
+  
+  // 2. Update quantity
+  item.quantity += change;
+  
+  // 3. If quantity reaches 0, remove item
+  if (item.quantity <= 0) {
+    removeFromCart(productId);
+  } else {
+    // Otherwise save and update
+    saveCart();
+    updateCartUI();
+  }
+}
+```
+
+### Calculate Total
+
+```javascript
+function calculateTotal() {
+  let total = 0;
+  
+  // Loop through each item
+  for (let item of cart) {
+    total += item.price * item.quantity;
+  }
+  
+  return total.toFixed(2);  // Round to 2 decimals
+}
+
+// SHORTER VERSION (using reduce)
+const total = cart.reduce((sum, item) => {
+  return sum + (item.price * item.quantity);
+}, 0);
+```
+
+---
+
+## 🎯 Part 9: Complete Workflow Walkthrough
+
+### Scenario: User Creates Account and Makes Purchase
+
+#### Step 1: User Arrives at Website
+
+```
+Browser loads login.html
+    ↓
+Runs checkAuth() function
+    ↓
+Checks: "Is user already logged in?"
+    ↓
+NO → Stay on login page
+YES → Redirect to store.html
+```
+
+```javascript
+async function checkAuth() {
+  const { data: { user } } = await client.auth.getUser();
+  if (user) {
+    window.location.href = 'store.html';
+  }
+}
+```
+
+#### Step 2: User Signs Up
+
+```
+User fills form:
+  - Full Name: "John Doe"
+  - Email: "john@email.com"
+  - Password: "secure123"
+    ↓
+Clicks "Create Account"
+    ↓
+JavaScript validates:
+  ✓ Password matches confirm password
+  ✓ Email format is correct
+    ↓
+Sends to Supabase:
+  client.auth.signUp({...})
+    ↓
+Supabase creates user in database
+    ↓
+Returns session token
+    ↓
+JavaScript redirects to store.html
+```
+
+```javascript
+async function handleSignUp(event) {
+  event.preventDefault();  // Stop form from refreshing page
+  
+  // Get values from form
+  const name = document.getElementById('signup-name').value;
+  const email = document.getElementById('signup-email').value;
+  const password = document.getElementById('signup-password').value;
+  const confirmPassword = document.getElementById('signup-confirm-password').value;
+  
+  // Validate passwords match
+  if (password !== confirmPassword) {
+    showMessage('Passwords do not match', 'error');
+    return;
+  }
+  
+  // Create account
+  const { data, error } = await client.auth.signUp({
+    email,
+    password,
+    options: {
+      data: { full_name: name }
+    }
+  });
+  
+  if (error) {
+    showMessage(error.message, 'error');
+  } else {
+    showMessage('Account created! Redirecting...', 'success');
+    setTimeout(() => {
+      window.location.href = 'store.html';
+    }, 1000);
+  }
+}
+```
+
+#### Step 3: Store Page Loads
+
+```
+Browser loads store.html
+    ↓
+Runs checkAuth()
+    ↓
+Checks session token with Supabase
+    ↓
+Valid? → Continue loading
+Invalid? → Redirect to login.html
+    ↓
+Display user email in header
+    ↓
+Load products from database
+    ↓
+Load cart from localStorage
+    ↓
+Render everything on page
+```
+
+```javascript
+async function init() {
+  // 1. Check authentication
+  await checkAuth();
+  
+  // 2. Load products from database
+  await loadProducts();
+  
+  // 3. Load cart from browser storage
+  cart = JSON.parse(localStorage.getItem('cart')) || [];
+  
+  // 4. Update cart display
+  updateCartUI();
+}
+
+init();  // Run when page loads
+```
+
+#### Step 4: User Adds Items to Cart
+
+```
+User clicks "Add to Cart" button
+    ↓
+addToCart(productId) function runs
+    ↓
+Find product in products array
+    ↓
+Check if already in cart
+    ↓
+If yes: quantity++
+If no: add new item with quantity 1
+    ↓
+Save cart to localStorage
+    ↓
+Update cart count badge
+    ↓
+Show success message
+```
+
+```javascript
+function addToCart(productId) {
+  const product = products.find(p => p.id === productId);
+  const existingItem = cart.find(item => item.id === productId);
+  
+  if (existingItem) {
+    existingItem.quantity += 1;
+  } else {
+    cart.push({ ...product, quantity: 1 });
+  }
+  
+  localStorage.setItem('cart', JSON.stringify(cart));
+  updateCartUI();
+}
+```
+
+#### Step 5: User Views Cart
+
+```
+User clicks "Cart" button
+    ↓
+Cart modal opens (CSS: display: flex)
+    ↓
+Loop through cart array
+    ↓
+For each item, create HTML:
+  - Product image/icon
+  - Name and price
+  - Quantity controls (+ and -)
+  - Remove button
+    ↓
+Calculate total price
+    ↓
+Display checkout button
+```
+
+```javascript
+function updateCartUI() {
+  const cartItems = document.getElementById('cartItems');
+  
+  if (cart.length === 0) {
+    cartItems.innerHTML = '<p>Your cart is empty</p>';
+  } else {
+    cartItems.innerHTML = cart.map(item => `
+      <div class="cart-item">
+        <div>${item.icon}</div>
+        <div>
+          <h3>${item.name}</h3>
+          <p>$${item.price}</p>
+          <button onclick="updateQuantity(${item.id}, -1)">-</button>
+          <span>${item.quantity}</span>
+          <button onclick="updateQuantity(${item.id}, 1)">+</button>
+        </div>
+      </div>
+    `).join('');
+    
+    const total = cart.reduce((sum, item) => 
+      sum + (item.price * item.quantity), 0
+    );
+    
+    document.getElementById('totalPrice').textContent = `$${total.toFixed(2)}`;
+  }
+}
+```
+
+#### Step 6: User Checks Out
+
+```
+User clicks "Proceed to Checkout"
+    ↓
+handleCheckout() function runs
+    ↓
+Create order object:
+  - user_id: current user's ID
+  - user_email: current user's email
+  - items: cart array
+  - total: calculated total
+  - status: "pending"
+    ↓
+Insert into orders table in database
+    ↓
+Database saves order
+    ↓
+Show success message
+    ↓
+Clear cart
+    ↓
+Close cart modal
+```
+
+```javascript
+async function handleCheckout() {
+  // Create order object
+  const orderData = {
+    user_id: currentUser.id,
+    user_email: currentUser.email,
+    items: cart,
+    total: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+    status: 'pending'
+  };
+  
+  // Save to database
+  const { data, error } = await client
+    .from('orders')
+    .insert([orderData])
+    .select();
+  
+  if (error) {
+    alert('Checkout failed: ' + error.message);
+  } else {
+    alert('Order placed successfully! Order ID: ' + data[0].id);
+    
+    // Clear cart
+    cart = [];
+    localStorage.removeItem('cart');
+    updateCartUI();
+    toggleCart();
+  }
+}
+```
+
+#### Step 7: User Logs Out
+
+```
+User clicks "Sign Out"
+    ↓
+handleLogout() function runs
+    ↓
+Call Supabase signOut()
+    ↓
+Supabase invalidates session token
+    ↓
+Clear cart from localStorage
+    ↓
+Redirect to login.html
+```
+
+```javascript
+async function handleLogout() {
+  const { error } = await client.auth.signOut();
+  
+  if (!error) {
+    localStorage.removeItem('cart');
+    window.location.href = 'login.html';
+  }
+}
+```
+
+---
+
+## 🔧 Part 10: Common Issues and Solutions
+
+### Problem 1: "Products not loading"
+
+**Symptoms:** Blank page, "Loading products..." forever
+
+**Possible Causes:**
+1. Wrong Supabase URL or API key
+2. Products table doesn't exist
+3. No products in database
+
+**Solutions:**
+
+```javascript
+// Check 1: Verify credentials
+console.log('URL:', SUPABASE_URL);
+console.log('Key:', SUPABASE_ANON_KEY);
+
+// Check 2: Add error handling
+async function loadProducts() {
+  try {
+    const { data, error } = await client
+      .from('products')
+      .select('*');
+    
+    if (error) {
+      console.error('Database error:', error);
+      // Show sample products instead
+      products = getSampleProducts();
+    } else {
+      products = data;
+    }
+    
+    renderProducts();
+  } catch (error) {
+    console.error('Loading error:', error);
+  }
+}
+```
+
+### Problem 2: "Can't sign in / sign up"
+
+**Symptoms:** Error message, button doesn't work
+
+**Possible Causes:**
+1. Email already exists (signup)
+2. Wrong password (signin)
+3. Email confirmation required
+4. Supabase project paused
+
+**Solutions:**
+
+```javascript
+// Better error messages
+async function handleSignIn(event) {
+  event.preventDefault();
+  
+  try {
+    const { data, error } = await client.auth.signInWithPassword({
+      email,
+      password
+    });
+    
+    if (error) {
+      // Show specific error
+      if (error.message.includes('Invalid')) {
+        showMessage('Incorrect email or password', 'error');
+      } else if (error.message.includes('Email not confirmed')) {
+        showMessage('Please check your email to verify account', 'info');
+      } else {
+        showMessage(error.message, 'error');
+      }
+    } else {
+      window.location.href = 'store.html';
+    }
+  } catch (error) {
+    console.error('Sign in error:', error);
+    showMessage('An error occurred. Please try again.', 'error');
+  }
+}
+```
+
+### Problem 3: "Redirected to login when already logged in"
+
+**Symptoms:** Keep getting kicked back to login page
+
+**Possible Causes:**
+1. Session expired
+2. Different browser/incognito mode
+3. Cookies disabled
+
+**Solutions:**
+
+```javascript
+// Better auth checking with debugging
+async function checkAuth() {
+  const { data: { user }, error } = await client.auth.getUser();
+  
+  console.log('User:', user);
+  console.log('Error:', error);
+  
+  if (!user) {
+    console.log('Not authenticated, redirecting...');
+    window.location.href = 'login.html';
+    return;
+  }
+  
+  console.log('Authenticated as:', user.email);
+  currentUser = user;
+  document.getElementById('userEmail').textContent = user.email;
+}
+```
+
+### Problem 4: "Cart disappears on page refresh"
+
+**Symptoms:** Add items, refresh page, cart empty
+
+**Possible Causes:**
+1. Not saving to localStorage
+2. localStorage cleared
+3. Different domain/protocol
+
+**Solutions:**
+
+```javascript
+// Always save after changes
+function addToCart(productId) {
+  // ... add logic ...
+  
+  // IMPORTANT: Save to localStorage
+  localStorage.setItem('cart', JSON.stringify(cart));
+  console.log('Cart saved:', cart);
+  
+  updateCartUI();
+}
+
+// Load on page load
+window.addEventListener('DOMContentLoaded', function() {
+  cart = JSON.parse(localStorage.getItem('cart')) || [];
+  console.log('Cart loaded:', cart);
+  updateCartUI();
+});
+```
+
+### Problem 5: "Checkout doesn't work"
+
+**Symptoms:** Click checkout, nothing happens or error
+
+**Possible Causes:**
+1. Orders table doesn't exist
+2. RLS policies blocking insert
+3. Not authenticated
+
+**Solutions:**
+
+```javascript
+async function handleCheckout() {
+  // Check if user is logged in
+  if (!currentUser) {
+    alert('Please sign in first');
+    window.location.href = 'login.html';
+    return;
+  }
+  
+  // Check if cart has items
+  if (cart.length === 0) {
+    alert('Your cart is empty');
+    return;
+  }
+  
+  try {
+    const orderData = {
+      user_id: currentUser.id,
+      user_email: currentUser.email,
+      items: cart,
+      total: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+      status: 'pending'
+    };
+    
+    console.log('Creating order:', orderData);
+    
+    const { data, error } = await client
+      .from('orders')
+      .insert([orderData])
+      .select();
+    
+    if (error) {
+      console.error('Order error:', error);
+      throw error;
+    }
+    
+    console.log('Order created:', data);
+    alert('Order placed successfully!');
+    
+    cart = [];
+    localStorage.removeItem('cart');
+    updateCartUI();
+    toggleCart();
+  } catch (error) {
+    console.error('Checkout failed:', error);
+    alert('Checkout failed. Please try again.');
+  }
+}
+```
+
+---
+
+## 🎓 Part 11: Learning Exercises
+
+### Exercise 1: Add Product Search
+
+**Goal:** Filter products by name in real-time
+
+**Steps:**
+1. Add search input in HTML
+2. Listen for input changes
+3. Filter products array
+4. Re-render filtered results
+
+**Code:**
+
+```html
+<!-- Add to store.html -->
+<input 
+  type="text" 
+  id="searchBox" 
+  placeholder="Search products..."
+  oninput="searchProducts()"
+/>
+```
+
+```javascript
+// Add to script.js
+function searchProducts() {
+  const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+  
+  const filtered = products.filter(product => {
+    return product.name.toLowerCase().includes(searchTerm) ||
+           product.description.toLowerCase().includes(searchTerm);
+  });
+  
+  renderProducts(filtered);
+}
+
+// Update renderProducts to accept optional array
+function renderProducts(productsToShow = products) {
+  const grid = document.getElementById('productsGrid');
+  grid.innerHTML = '';
+  
+  productsToShow.forEach(product => {
+    // ... render each product
+  });
+}
+```
+
+### Exercise 2: Add Order History Page
+
+**Goal:** Create a new page showing user's past orders
+
+**Steps:**
+1. Create `orders.html`
+2. Fetch orders from database
+3. Display in a table or list
+4. Show order details
+
+**Code:**
+
+```html
+<!-- orders.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My Orders</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <h1>Order History</h1>
+  <div id="ordersList"></div>
+  
+  <script>
+    const SUPABASE_URL = 'YOUR_URL';
+    const SUPABASE_KEY = 'YOUR_KEY';
+    const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    
+    async function loadOrders() {
+      // Check auth
+      const { data: { user } } = await client.auth.getUser();
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+      
+      // Fetch orders
+      const { data, error } = await client
+        .from('orders')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+      
+      if (error) {
+        console.error(error);
+        return;
+      }
+      
+      // Display orders
+      const ordersList = document.getElementById('ordersList');
+      ordersList.innerHTML = data.map(order => `
+        <div class="order">
+          <h3>Order #${order.id}</h3>
+          <p>Date: ${new Date(order.created_at).toLocaleDateString()}</p>
+          <p>Total: $${order.total}</p>
+          <p>Status: ${order.status}</p>
+          <details>
+            <summary>Items (${order.items.length})</summary>
+            <ul>
+              ${order.items.map(item => `
+                <li>${item.name} x${item.quantity} - $${item.price}</li>
+              `).join('')}
+            </ul>
+          </details>
+        </div>
+      `).join('');
+    }
+    
+    loadOrders();
+  </script>
+</body>
+</html>
+```
+
+### Exercise 3: Add Product Categories
+
+**Goal:** Organize products by category
+
+**Steps:**
+1. Add category field to products table
+2. Add category filter buttons
+3. Filter products by category
+
+**SQL:**
+
+```sql
+-- Add category column
+ALTER TABLE products ADD COLUMN category TEXT DEFAULT 'General';
+
+-- Update existing products
+UPDATE products SET category = 'Audio' WHERE name LIKE '%Headphones%';
+UPDATE products SET category = 'Accessories' WHERE name LIKE '%Mouse%' OR name LIKE '%Keyboard%';
+UPDATE products SET category = 'Peripherals' WHERE name LIKE '%Webcam%' OR name LIKE '%Hub%';
+```
+
+**HTML:**
+
+```html
+<div class="category-filters">
+  <button onclick="filterByCategory('All')">All</button>
+  <button onclick="filterByCategory('Audio')">Audio</button>
+  <button onclick="filterByCategory('Accessories')">Accessories</button>
+  <button onclick="filterByCategory('Peripherals')">Peripherals</button>
+</div>
+```
+
+**JavaScript:**
+
+```javascript
+let selectedCategory = 'All';
+
+function filterByCategory(category) {
+  selectedCategory = category;
+  
+  let filtered = products;
+  
+  if (category !== 'All') {
+    filtered = products.filter(p => p.category === category);
+  }
+  
+  renderProducts(filtered);
+}
+```
+
+### Exercise 4: Add Product Ratings
+
+**Goal:** Let users rate products
+
+**Steps:**
+1. Create ratings table
+2. Add star rating UI
+3. Save ratings to database
+4. Display average rating
+
+**SQL:**
+
+```sql
+CREATE TABLE ratings (
+  id BIGSERIAL PRIMARY KEY,
+  product_id BIGINT REFERENCES products(id),
+  user_id UUID REFERENCES auth.users(id),
+  rating INTEGER CHECK (rating >= 1 AND rating <= 5),
+  created_at TIMESTAMP DEFAULT NOW(),
+  UNIQUE(product_id, user_id)  -- One rating per user per product
+);
+```
+
+**JavaScript:**
+
+```javascript
+async function rateProduct(productId, rating) {
+  const { data, error } = await client
+    .from('ratings')
+    .upsert({  // Insert or update
+      product_id: productId,
+      user_id: currentUser.id,
+      rating: rating
+    });
+  
+  if (!error) {
+    alert('Rating saved!');
+    await loadProducts();  // Reload to show updated rating
+  }
+}
+
+async function getAverageRating(productId) {
+  const { data, error } = await client
+    .from('ratings')
+    .select('rating')
+    .eq('product_id', productId);
+  
+  if (data && data.length > 0) {
+    const sum = data.reduce((total, r) => total + r.rating, 0);
+    return (sum / data.length).toFixed(1);
+  }
+  
+  return 0;
+}
+```
+
+---
+
+## 📚 Part 12: Advanced Concepts
+
+### Concept 1: Event Loop and Asynchronous JavaScript
+
+**Why is this important?**
+
+JavaScript is **single-threaded** but needs to handle multiple tasks:
+- Loading data from database
+- Waiting for user clicks
+- Animating elements
+- Fetching from APIs
+
+**The Event Loop:**
+
+```
+Call Stack          Web APIs           Callback Queue
+┌─────────┐        ┌─────────┐        ┌─────────┐
+│ main()  │        │ setTimeout│      │         │
+│ getData││   →    │ fetch()   │  →   │callback1│
+│         │        │ onClick   │      │callback2│
+└─────────┘        └─────────┘        └─────────┘
+     ↑                                      ↓
+     └──────────────────────────────────────┘
+              Event Loop checks
+```
+
+**Example:**
+
+```javascript
+console.log('1 - Start');
+
+setTimeout(() => {
+  console.log('2 - Timeout');
+}, 0);
+
+console.log('3 - End');
+
+// Output:
+// 1 - Start
+// 3 - End
+// 2 - Timeout (even with 0ms delay!)
+```
+
+**Why?**
+1. `console.log('1')` runs immediately
+2. `setTimeout` goes to Web API, callback queued
+3. `console.log('3')` runs immediately
+4. Call stack empty, Event Loop runs callback
+
+### Concept 2: Promises
+
+**What is a Promise?**
+
+A promise represents a future value.
+
+```javascript
+// Creating a promise
+const myPromise = new Promise((resolve, reject) => {
+  // Do async work
+  setTimeout(() => {
+    const success = true;
+    
+    if (success) {
+      resolve('Success!');  // Promise succeeded
+    } else {
+      reject('Failed!');    // Promise failed
+    }
+  }, 1000);
+});
+
+// Using a promise
+myPromise
+  .then(result => {
+    console.log(result);  // "Success!"
+  })
+  .catch(error => {
+    console.log(error);   // "Failed!"
+  });
+```
+
+**Supabase returns promises:**
+
+```javascript
+// Without await
+client.from('products').select()
+  .then(response => {
+    console.log(response.data);
+  })
+  .catch(error => {
+    console.log(error);
+  });
+
+// With await (cleaner!)
+const { data, error } = await client.from('products').select();
+```
+
+### Concept 3: Closures
+
+**What is a closure?**
+
+A function that remembers variables from its outer scope.
+
+```javascript
+function createCounter() {
+  let count = 0;  // Private variable
+  
+  return {
+    increment: function() {
+      count++;
+      return count;
+    },
+    decrement: function() {
+      count--;
+      return count;
+    },
+    getCount: function() {
+      return count;
+    }
+  };
+}
+
+const counter = createCounter();
+console.log(counter.increment());  // 1
+console.log(counter.increment());  // 2
+console.log(counter.decrement());  // 1
+console.log(counter.count);        // undefined (private!)
+```
+
+**Real use in our project:**
+
+```javascript
+function createCartManager() {
+  let cart = [];  // Private
+  
+  return {
+    add: (item) => cart.push(item),
+    remove: (id) => cart = cart.filter(i => i.id !== id),
+    getAll: () => [...cart],  // Return copy
+    clear: () => cart = []
+  };
+}
+
+const cartManager = createCartManager();
+cartManager.add({ id: 1, name: 'Item' });
+```
+
+### Concept 4: Destructuring
+
+**Array Destructuring:**
+
+```javascript
+// Old way
+const cart = [item1, item2, item3];
+const first = cart[0];
+const second = cart[1];
+
+// New way
+const [first, second, third] = cart;
+const [first, ...rest] = cart;  // rest = [item2, item3]
+```
+
+**Object Destructuring:**
+
+```javascript
+// Old way
+const user = { name: 'John', email: 'john@email.com', age: 25 };
+const name = user.name;
+const email = user.email;
+
+// New way
+const { name, email } = user;
+const { name: userName, email } = user;  // Rename
+
+// Nested destructuring
+const { data: { user } } = await client.auth.getUser();
+// Same as:
+const response = await client.auth.getUser();
+const user = response.data.user;
+```
+
+### Concept 5: Spread Operator
+
+**Copy arrays:**
+
+```javascript
+const cart = [item1, item2];
+const cartCopy = [...cart];  // New array
+const extended = [...cart, item3, item4];  // Add items
+```
+
+**Copy objects:**
+
+```javascript
+const product = { name: 'Mouse', price: 79.99 };
+const productCopy = { ...product };  // New object
+const cartItem = { ...product, quantity: 1 };  // Add property
+```
+
+**Combine objects:**
+
+```javascript
+const defaults = { quantity: 1, inStock: true };
+const product = { name: 'Keyboard', price: 149.99 };
+const final = { ...defaults, ...product };
+// { quantity: 1, inStock: true, name: 'Keyboard', price: 149.99 }
+```
+
+### Concept 6: Array Methods
+
+**Essential methods:**
+
+```javascript
+const products = [
+  { id: 1, name: 'Mouse', price: 79.99, category: 'Accessories' },
+  { id: 2, name: 'Keyboard', price: 149.99, category: 'Accessories' },
+  { id: 3, name: 'Headphones', price: 199.99, category: 'Audio' }
+];
+
+// map - Transform each item
+const names = products.map(p => p.name);
+// ['Mouse', 'Keyboard', 'Headphones']
+
+// filter - Keep only items that match
+const accessories = products.filter(p => p.category === 'Accessories');
+// [Mouse, Keyboard]
+
+// find - Get first match
+const mouse = products.find(p => p.name === 'Mouse');
+// { id: 1, name: 'Mouse', ... }
+
+// reduce - Combine into single value
+const total = products.reduce((sum, p) => sum + p.price, 0);
+// 429.97
+
+// some - Check if ANY match
+const hasExpensive = products.some(p => p.price > 150);
+// true
+
+// every - Check if ALL match
+const allUnder200 = products.every(p => p.price < 200);
+// false
+
+// sort - Arrange items
+const sorted = products.sort((a, b) => a.price - b.price);
+// [Mouse, Keyboard, Headphones]
+```
+
+---
+
+## 🎯 Part 13: Best Practices
+
+### 1. Code Organization
+
+**Bad:**
+```javascript
+// Everything in one file, no organization
+let x = 1;
+function f() { }
+let y = 2;
+function g() { }
+```
+
+**Good:**
+```javascript
+// ========================================
+// CONFIGURATION
+// ========================================
+const CONFIG = {
+  SUPABASE_URL: '...',
+  SUPABASE_KEY: '...'
+};
+
+// ========================================
+// STATE
+// ========================================
+let products = [];
+let cart = [];
+let currentUser = null;
+
+// ========================================
+// AUTH FUNCTIONS
+// ========================================
+async function checkAuth() { }
+async function handleLogin() { }
+async function handleLogout() { }
+
+// ========================================
+// PRODUCT FUNCTIONS
+// ========================================
+async function loadProducts() { }
+function renderProducts() { }
+
+// ========================================
+// CART FUNCTIONS
+// ========================================
+function addToCart() { }
+function removeFromCart() { }
+function updateCartUI() { }
+
+// ========================================
+// INITIALIZATION
+// ========================================
+init();
+```
+
+### 2. Error Handling
+
+**Bad:**
+```javascript
+async function loadProducts() {
+  const { data } = await client.from('products').select();
+  products = data;
+}
+// If error occurs, app crashes!
+```
+
+**Good:**
+```javascript
+async function loadProducts() {
+  try {
+    const { data, error } = await client
+      .from('products')
+      .select();
+    
+    if (error) throw error;
+    
+    products = data || [];
+    
+    if (products.length === 0) {
+      console.warn('No products found, using sample data');
+      products = getSampleProducts();
+    }
+    
+    renderProducts();
+  } catch (error) {
+    console.error('Failed to load products:', error);
+    showMessage('Failed to load products. Using sample data.', 'error');
+    products = getSampleProducts();
+    renderProducts();
+  }
+}
+```
+
+### 3. Validation
+
+**Bad:**
+```javascript
+function addToCart(productId) {
+  cart.push(products.find(p => p.id === productId));
+}
+// What if product not found? Pushes undefined!
+```
+
+**Good:**
+```javascript
+function addToCart(productId) {
+  // Validate input
+  if (!productId) {
+    console.error('No product ID provided');
+    return;
+  }
+  
+  // Find product
+  const product = products.find(p => p.id === productId);
+  
+  // Validate product exists
+  if (!product) {
+    console.error('Product not found:', productId);
+    showMessage('Product not found', 'error');
+    return;
+  }
+  
+  // Check if already in cart
+  const existing = cart.find(item => item.id === productId);
+  
+  if (existing) {
+    existing.quantity += 1;
+  } else {
+    cart.push({ ...product, quantity: 1 });
+  }
+  
+  saveCart();
+  updateCartUI();
+  showSuccessMessage('Added to cart!');
+}
+```
+
+### 4. Naming Conventions
+
+**Bad:**
+```javascript
+let x = [];  // What is x?
+function f() { }  // What does f do?
+let data;  // What kind of data?
+```
+
+**Good:**
+```javascript
+let cartItems = [];
+function calculateCartTotal() { }
+let productsList;
+let currentUser;
+let isLoading;
+```
+
+**Naming Rules:**
+- Variables: camelCase (`cartItems`, `currentUser`)
+- Functions: camelCase, verb-based (`loadProducts`, `calculateTotal`)
+- Constants: UPPER_SNAKE_CASE (`API_KEY`, `MAX_ITEMS`)
+- Classes: PascalCase (`ProductCard`, `UserManager`)
+- Boolean: is/has prefix (`isLoading`, `hasItems`)
+
+### 5. Comments
+
+**Bad:**
+```javascript
+// Set x to 5
+let x = 5;
+
+// Loop through products
+products.forEach(p => { });
+```
+
+**Good:**
+```javascript
+// Calculate discount: 10% off if cart total > $100
+const discount = cartTotal > 100 ? 0.1 : 0;
+
+/**
+ * Validates email format
+ * @param {string} email - Email address to validate
+ * @returns {boolean} True if valid, false otherwise
+ */
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+```
+
+### 6. Security
+
+**Don'ts:**
+```javascript
+// DON'T store sensitive data in localStorage
+localStorage.setItem('password', userPassword);  // ❌
+
+// DON'T trust user input without validation
+const userId = prompt('Enter user ID');
+deleteUser(userId);  // ❌
+
+// DON'T expose API keys in frontend
+const SECRET_KEY = 'sk_live_abc123';  // ❌
+```
+
+**Dos:**
+```javascript
+// DO use Supabase authentication
+const { user } = await client.auth.getUser();
+
+// DO validate and sanitize input
+function sanitizeInput(input) {
+  return input.trim().slice(0, 100);  // Limit length
+}
+
+// DO use public (anon) keys only in frontend
+const SUPABASE_ANON_KEY = 'eyJ...';  // ✅
+
+// DO rely on Row Level Security
+// Database handles permissions, not frontend
+```
+
+---
+
+## 🎓 Part 14: Quiz Questions
+
+Test your understanding! (Answers at the end)
+
+### Beginner Level
+
+1. What does HTML stand for?
+2. What are the three main parts of a website?
+3. What is the difference between `let` and `const`?
+4. What does `async/await` do?
+5. What is localStorage used for?
+
+### Intermediate Level
+
+6. Explain the difference between authentication and authorization.
+7. What is the purpose of Row Level Security (RLS)?
+8. How does the shopping cart persist across page refreshes?
+9. What is the difference between `map()` and `forEach()`?
+10. Why do we use `event.preventDefault()` in form submissions?
+
+### Advanced Level
+
+11. Explain how the Event Loop works in JavaScript.
+12. What is a closure and give a practical example?
+13. How would you implement product search with debouncing?
+14. Explain the purpose of destructuring in: `const { data: { user } } = await client.auth.getUser()`
+15. How would you prevent SQL injection in this project?
+
+---
+
+## 📝 Answers to Quiz
+
+### Beginner
+1. HyperText Markup Language
+2. HTML (structure), CSS (style), JavaScript (behavior)
+3. `let` can be reassigned, `const` cannot
+4. Makes asynchronous code look synchronous, pauses execution until promise resolves
+5. Storing data in the browser that persists across sessions
+
+### Intermediate
+6. Authentication = proving who you are, Authorization = what you're allowed to do
+7. Controls database access at row level based on user permissions
+8. Saved to localStorage (browser storage) after each cart modification
+9. `map()` returns new array, `forEach()` just loops (no return value)
+10. Prevents default form submission (page refresh), allows JavaScript to handle it
+
+### Advanced
+11. Single-threaded loop that checks Call Stack, then processes callbacks from Callback Queue
+12. Function that remembers variables from outer scope. Example: counter with private state
+13. Use setTimeout to delay search, clear timeout if user keeps typing (see implementation below)
+14. Extracts `user` from `data` property of the returned object (nested destructuring)
+15. Supabase parameterized queries prevent SQL injection. We pass data as parameters, not concatenated strings.
+
+**Debounce Example:**
+```javascript
+let searchTimeout;
+
+function searchProducts() {
+  clearTimeout(searchTimeout);
+  
+  searchTimeout = setTimeout(() => {
+    const term = document.getElementById('search').value;
+    // Actual search logic here
+  }, 300);  // Wait 300ms after user stops typing
+}
+```
+
+---
+
+## 🎯 Final Project Checklist
+
+Use this checklist to verify your project is complete:
+
+### Setup & Configuration
+- [ ] Created Supabase account and project
+- [ ] Created all database tables (products, orders)
+- [ ] Configured Row Level Security policies
+- [ ] Added Supabase URL and API key to both files
+- [ ] Tested database connection
+
+### Authentication
+- [ ] Sign up creates new user account
+- [ ] Sign in works with valid credentials
+- [ ] Error messages show for invalid login
+- [ ] Password visibility toggle works
+- [ ] Forgot password sends reset email
+- [ ] Already-logged-in users redirect to store
+- [ ] Logout clears session and returns to login
+
+### Store Functionality
+- [ ] Products load from database
+- [ ] Sample products show if database empty
+- [ ] Product cards display correctly
+- [ ] User email shows in header
+- [ ] Logout button works
+
+### Shopping Cart
+- [ ] Add to cart button adds items
+- [ ] Cart count badge updates
+- [ ] Cart modal opens and closes
+- [ ] Quantity controls (+ and -) work
+- [ ] Remove button deletes items
+- [ ] Total price calculates correctly
+- [ ] Cart persists on page refresh
+- [ ] Cart clears after checkout
+
+### Checkout
+- [ ] Checkout creates order in database
+- [ ] Order includes all cart items
+- [ ] Order saves user information
+- [ ] Success message displays
+- [ ] Cart clears after successful checkout
+
+### UI/UX
+- [ ] Page loads without errors
+- [ ] Animations work smoothly
+- [ ] Mobile responsive design
+- [ ] Error messages display properly
+- [ ] Loading states show when needed
+- [ ] Forms validate input
+
+### Code Quality
+- [ ] No console errors
+- [ ] Code is organized and commented
+- [ ] Variables have descriptive names
+- [ ] Error handling implemented
+- [ ] No sensitive data exposed
+
+---
+
+## 📚 Resources for Further Learning
+
+### HTML & CSS
+- MDN Web Docs: https://developer.mozilla.org/
+- CSS Tricks: https://css-tricks.com/
+- Web.dev: https://web.dev/learn/css/
+
+### JavaScript
+- JavaScript.info: https://javascript.info/
+- Eloquent JavaScript: https://eloquentjavascript.net/
+- You Don't Know JS: https://github.com/getify/You-Dont-Know-JS
+
+### Supabase
+- Official Docs: https://supabase.com/docs
+- Video Tutorials: https://supabase.com/docs/guides/getting-started
+- Community: https://github.com/supabase/supabase
+
+### General Web Development
+- freeCodeCamp: https://www.freecodecamp.org/
+- The Odin Project: https://www.theodinproject.com/
+- Web Dev Simplified (YouTube): https://www.youtube.com/c/WebDevSimplified
+
+---
+
+## 🎓 Congratulations!
+
+You now understand:
+✅ How websites work (HTML, CSS, JavaScript)
+✅ User authentication and sessions
+✅ Database operations (CRUD)
+✅ State management
+✅ Real-world development workflows
+✅ Modern web development best practices
+
+**Next Steps:**
+1. Build your own variations of this project
+2. Add the suggested exercises
+3. Deploy your project online (Netlify, Vercel)
+4. Contribute to open source projects
+5. Build your portfolio
+
+**Remember:** The best way to learn is by building! Keep coding! 🚀

@@ -30,7 +30,10 @@ async function checkAuth() {
   }
 
   currentUser = user;
-  document.getElementById("userEmail").textContent = user.email;
+  const userEmailElement = document.getElementById("userEmail");
+  if (userEmailElement) {
+    userEmailElement.textContent = user.email;
+  }
 }
 
 // ========================================
@@ -156,14 +159,18 @@ function renderProducts() {
   const loadingProducts = document.getElementById("loadingProducts");
   const productsGrid = document.getElementById("productsGrid");
 
-  loadingProducts.style.display = "none";
-  productsGrid.style.display = "grid";
-  productsGrid.innerHTML = "";
+  if (loadingProducts) {
+    loadingProducts.style.display = "none";
+  }
 
-  products.forEach((product) => {
-    const productCard = document.createElement("div");
-    productCard.className = "product-card";
-    productCard.innerHTML = `
+  if (productsGrid) {
+    productsGrid.style.display = "grid";
+    productsGrid.innerHTML = "";
+
+    products.forEach((product) => {
+      const productCard = document.createElement("div");
+      productCard.className = "product-card";
+      productCard.innerHTML = `
                     <div class="product-image">${product.icon || "📦"}</div>
                     <div class="product-info">
                         <h3 class="product-name">${product.name}</h3>
@@ -176,8 +183,9 @@ function renderProducts() {
                         </div>
                     </div>
                 `;
-    productsGrid.appendChild(productCard);
-  });
+      productsGrid.appendChild(productCard);
+    });
+  }
 }
 
 // ========================================
@@ -238,12 +246,16 @@ function saveCart() {
 
 function updateCartUI() {
   const cartCount = document.getElementById("cartCount");
-  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-  cartCount.textContent = totalItems;
+  if (cartCount) {
+    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+    cartCount.textContent = totalItems;
+  }
 
   const cartItems = document.getElementById("cartItems");
   const cartTotal = document.getElementById("cartTotal");
   const checkoutBtn = document.getElementById("checkoutBtn");
+
+  if (!cartItems) return; // Exit if cart elements don't exist (e.g., on login page)
 
   if (cart.length === 0) {
     cartItems.innerHTML = `
@@ -253,8 +265,8 @@ function updateCartUI() {
                         <p>Add some products to get started!</p>
                     </div>
                 `;
-    cartTotal.style.display = "none";
-    checkoutBtn.style.display = "none";
+    if (cartTotal) cartTotal.style.display = "none";
+    if (checkoutBtn) checkoutBtn.style.display = "none";
   } else {
     cartItems.innerHTML = cart
       .map(
@@ -280,24 +292,36 @@ function updateCartUI() {
       (sum, item) => sum + item.price * item.quantity,
       0,
     );
-    document.getElementById("totalPrice").textContent = `$${total.toFixed(2)}`;
-    cartTotal.style.display = "flex";
-    checkoutBtn.style.display = "block";
+
+    const totalPriceElement = document.getElementById("totalPrice");
+    if (totalPriceElement) {
+      totalPriceElement.textContent = `$${total.toFixed(2)}`;
+    }
+
+    if (cartTotal) cartTotal.style.display = "flex";
+    if (checkoutBtn) checkoutBtn.style.display = "block";
   }
 }
 
 function toggleCart() {
   const modal = document.getElementById("cartModal");
-  modal.classList.toggle("active");
+  if (modal) {
+    modal.classList.toggle("active");
+  }
 }
 
-document
-  .getElementById("cartModal")
-  .addEventListener("click", function (event) {
+// ========================================
+// CART MODAL EVENT LISTENER
+// ========================================
+// Only add event listener if cartModal exists (store.html page)
+const cartModal = document.getElementById("cartModal");
+if (cartModal) {
+  cartModal.addEventListener("click", function (event) {
     if (event.target === this) {
       toggleCart();
     }
   });
+}
 
 // ========================================
 // CHECKOUT
@@ -341,5 +365,10 @@ async function handleCheckout() {
   }
 }
 
-// Initialize
-init();
+// ========================================
+// INITIALIZE ONLY IF ON STORE PAGE
+// ========================================
+// Check if we're on the store page by looking for the productsGrid element
+if (document.getElementById("productsGrid")) {
+  init();
+}
