@@ -12,6 +12,7 @@ const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // STATE MANAGEMENT
 // ========================================
 let products = [];
+let filteredProducts = [];
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
 let currentUser = null;
 
@@ -86,10 +87,12 @@ async function loadProducts() {
       products = getSampleProducts();
     }
 
+    filteredProducts = [...products];
     renderProducts();
   } catch (error) {
     console.error("Error loading products:", error);
     products = getSampleProducts();
+    filteredProducts = [...products];
     renderProducts();
   }
 }
@@ -167,7 +170,18 @@ function renderProducts() {
     productsGrid.style.display = "grid";
     productsGrid.innerHTML = "";
 
-    products.forEach((product) => {
+    if (filteredProducts.length === 0) {
+      productsGrid.innerHTML = `
+        <div class="no-products" style="grid-column: 1 / -1;">
+          <div class="no-products-icon">🔍</div>
+          <h3>No products found</h3>
+          <p>Try adjusting your filters</p>
+        </div>
+      `;
+      return;
+    }
+
+    filteredProducts.forEach((product) => {
       const productCard = document.createElement("div");
       productCard.className = "product-card";
       productCard.innerHTML = `
@@ -186,6 +200,89 @@ function renderProducts() {
       productsGrid.appendChild(productCard);
     });
   }
+}
+
+// ========================================
+// FILTER FUNCTIONS
+// ========================================
+function applyFilters() {
+  const searchInput = document.getElementById("searchInput");
+  const sortSelect = document.getElementById("sortSelect");
+  const priceCheckboxes = document.querySelectorAll(".price-checkbox");
+
+  // Start with all products
+  filteredProducts = [...products];
+
+  // Apply search filter
+  if (searchInput && searchInput.value.trim() !== "") {
+    const searchTerm = searchInput.value.toLowerCase();
+    filteredProducts = filteredProducts.filter(
+      (product) =>
+        product.name.toLowerCase().includes(searchTerm) ||
+        product.description.toLowerCase().includes(searchTerm),
+    );
+  }
+
+  // Apply price range filters
+  if (priceCheckboxes) {
+    const selectedPriceRanges = Array.from(priceCheckboxes)
+      .filter((checkbox) => checkbox.checked)
+      .map((checkbox) => checkbox.value);
+
+    if (selectedPriceRanges.length > 0) {
+      filteredProducts = filteredProducts.filter((product) => {
+        return selectedPriceRanges.some((range) => {
+          const [min, max] = range.split("-").map(Number);
+          return product.price >= min && product.price <= max;
+        });
+      });
+    }
+  }
+
+  // Apply sorting
+  if (sortSelect && sortSelect.value) {
+    const sortValue = sortSelect.value;
+    switch (sortValue) {
+      case "price-asc":
+        filteredProducts.sort((a, b) => a.price - b.price);
+        break;
+      case "price-desc":
+        filteredProducts.sort((a, b) => b.price - a.price);
+        break;
+      case "name-asc":
+        filteredProducts.sort((a, b) => a.name.localeCompare(b.name));
+        break;
+      case "name-desc":
+        filteredProducts.sort((a, b) => b.name.localeCompare(a.name));
+        break;
+    }
+  }
+
+  renderProducts();
+}
+
+function clearFilters() {
+  // Clear search input
+  const searchInput = document.getElementById("searchInput");
+  if (searchInput) {
+    searchInput.value = "";
+  }
+
+  // Clear price checkboxes
+  const priceCheckboxes = document.querySelectorAll(".price-checkbox");
+  priceCheckboxes.forEach((checkbox) => {
+    checkbox.checked = false;
+  });
+
+  // Reset sort select
+  const sortSelect = document.getElementById("sortSelect");
+  if (sortSelect) {
+    sortSelect.value = "";
+  }
+
+  // Reset filtered products and render
+  filteredProducts = [...products];
+  renderProducts();
 }
 
 // ========================================
