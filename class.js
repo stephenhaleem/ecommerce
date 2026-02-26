@@ -8,13 +8,14 @@ let products = [];
 let filteredProducts = [];
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
 let currentUser = null;
-
 async function checkAuth() {
   const {
     data: { user },
   } = await client.auth.getUser();
 
-  if (!user) {
+  const isLoginPage = window.location.pathname.includes("login.html");
+
+  if (!user && !isLoginPage) {
     window.location.href = "login.html";
     return;
   }
@@ -102,7 +103,13 @@ function renderProducts() {
       const productCard = document.createElement("div");
       productCard.className = "product-card";
       productCard.innerHTML = `
-                    <div class="product-image">${product.icon || ""}</div>
+                  <div class="product-image">
+  ${
+    product.image_url
+      ? `<img src="${product.image_url}" style="width:100%; height:100%; object-fit:cover;" />`
+      : product.icon || "📦"
+  }
+</div>
                     <div class="product-info">
                         <h3 class="product-name">${product.name}</h3>
                         <p class="product-description">${product.description}</p>

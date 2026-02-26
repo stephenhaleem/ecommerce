@@ -1,0 +1,115 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  </head>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: white;
+      margin: 0;
+      padding: 40px;
+    }
+
+    h1,
+    h2 {
+      margin-bottom: 20px;
+    }
+
+    .admin-form {
+      background: #1e293b;
+      padding: 20px;
+      border-radius: 12px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 30px;
+    }
+
+    .admin-form input {
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+      background: #334155;
+      color: white;
+    }
+
+    .admin-form input::placeholder {
+      color: #94a3b8;
+    }
+
+    button {
+      background: #ef4444;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      background: #dc2626;
+    }
+
+    #admin-products {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 20px;
+    }
+
+    .product-card {
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 15px;
+      text-align: center;
+    }
+
+    .product-card img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+
+    .product-card h3 {
+      margin: 10px 0 5px;
+    }
+
+    .product-card p {
+      color: #cbd5f5;
+      font-size: 14px;
+    }
+
+    .product-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 10px;
+    }
+  </style>
+  <body>
+    <h1>Admin Dashboard</h1>
+
+    <div class="admin-form">
+      <input type="text" id="name" placeholder="Product Name" />
+      <input type="text" id="description" placeholder="Description" />
+      <input type="number" id="price" placeholder="Price" />
+      <input type="file" id="image" />
+
+      <button onclick="addProduct()">Add Product</button>
+    </div>
+
+    <h2>Products</h2>
+    <div id="admin-products"></div>
+
+    <script src="script.js"></script>
+    <script src="admin.js"></script>
+  </body>
+</html>
