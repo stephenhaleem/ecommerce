@@ -5,11 +5,10 @@ const SUPABASE_URL = "https://rdnkijeggxngvrfwuobo.supabase.co";
 const SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJkbmtpamVnZ3huZ3ZyZnd1b2JvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAwMjExOTgsImV4cCI6MjA4NTU5NzE5OH0.7mPgjG1T95MH1xaL2HFySm2GGjSt_BDZCJcI5McWth0";
 
-// Initialize Supabase client
 const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ========================================
-// STATE MANAGEMENT
+// STATE
 // ========================================
 let products = [];
 let filteredProducts = [];
@@ -17,60 +16,75 @@ let cart = JSON.parse(localStorage.getItem("cart")) || [];
 let currentUser = null;
 
 // ========================================
-// AUTHENTICATION CHECK
+// PRODUCT CATEGORY → LUCIDE ICON MAPPING
+// ========================================
+const PRODUCT_ICONS = {
+  // by keyword in name
+  headphone: { icon: "headphones", label: "Audio" },
+  earphone: { icon: "headphones", label: "Audio" },
+  speaker: { icon: "volume-2", label: "Audio" },
+  watch: { icon: "watch", label: "Wearable" },
+  laptop: { icon: "laptop", label: "Computing" },
+  stand: { icon: "monitor", label: "Desk Setup" },
+  keyboard: { icon: "keyboard", label: "Input" },
+  mouse: { icon: "mouse-pointer-2", label: "Input" },
+  hub: { icon: "cable", label: "Connectivity" },
+  usb: { icon: "usb", label: "Connectivity" },
+  webcam: { icon: "video", label: "Video" },
+  camera: { icon: "camera", label: "Video" },
+  phone: { icon: "smartphone", label: "Mobile" },
+  monitor: { icon: "monitor", label: "Display" },
+  cable: { icon: "cable", label: "Accessory" },
+  charger: { icon: "battery-charging", label: "Power" },
+  pad: { icon: "mouse-pointer-2", label: "Accessory" },
+};
+
+function getProductIcon(name) {
+  const lower = (name || "").toLowerCase();
+  for (const [key, val] of Object.entries(PRODUCT_ICONS)) {
+    if (lower.includes(key)) return val;
+  }
+  return { icon: "package", label: "Product" };
+}
+
+// ========================================
+// AUTH
 // ========================================
 async function checkAuth() {
   const {
     data: { user },
   } = await client.auth.getUser();
-
   if (!user) {
-    // User is not logged in, redirect to login page
     window.location.href = "login.html";
     return;
   }
-
   currentUser = user;
-  const userEmailElement = document.getElementById("userEmail");
-  if (userEmailElement) {
-    userEmailElement.textContent = user.email;
-  }
+  const el = document.getElementById("userEmail");
+  if (el) el.textContent = user.email;
 }
 
-// ========================================
-// LOGOUT
-// ========================================
 async function handleLogout() {
   try {
     const { error } = await client.auth.signOut();
     if (error) throw error;
-
-    // Clear cart
     localStorage.removeItem("cart");
-
-    // Redirect to login
     window.location.href = "login.html";
-  } catch (error) {
-    alert("Error signing out: " + error.message);
+  } catch (err) {
+    alert("Error signing out: " + err.message);
   }
 }
 
 // ========================================
-// INITIALIZATION
+// INIT
 // ========================================
 async function init() {
-  // Check authentication first
   await checkAuth();
-
-  // Load products
   await loadProducts();
-
-  // Update cart UI
   updateCartUI();
 }
 
 // ========================================
-// PRODUCTS FUNCTIONS
+// PRODUCTS
 // ========================================
 async function loadProducts() {
   try {
@@ -78,23 +92,13 @@ async function loadProducts() {
       .from("products")
       .select("*")
       .order("created_at", { ascending: false });
-
     if (error) throw error;
-
-    products = data || [];
-
-    if (products.length === 0) {
-      products = getSampleProducts();
-    }
-
-    filteredProducts = [...products];
-    renderProducts();
-  } catch (error) {
-    console.error("Error loading products:", error);
+    products = data && data.length > 0 ? data : getSampleProducts();
+  } catch {
     products = getSampleProducts();
-    filteredProducts = [...products];
-    renderProducts();
   }
+  filteredProducts = [...products];
+  renderProducts();
 }
 
 function getSampleProducts() {
@@ -102,244 +106,197 @@ function getSampleProducts() {
     {
       id: 1,
       name: "Wireless Headphones",
-      description: "Premium noise-cancelling headphones",
+      description: "Premium noise-cancelling, 30hr battery life",
       price: 199.99,
-      icon: "🎧",
     },
     {
       id: 2,
       name: "Smart Watch",
-      description: "Fitness tracking & notifications",
+      description: "Health tracking, GPS & contactless payments",
       price: 299.99,
-      icon: "⌚",
     },
     {
       id: 3,
       name: "Laptop Stand",
-      description: "Ergonomic aluminum stand",
+      description: "Anodised aluminium, adjustable 6-angle tilt",
       price: 49.99,
-      icon: "💻",
     },
     {
       id: 4,
       name: "Mechanical Keyboard",
-      description: "RGB backlit gaming keyboard",
+      description: "Clicky tactile switches, hot-swappable RGB",
       price: 149.99,
-      icon: "⌨️",
     },
     {
       id: 5,
       name: "Wireless Mouse",
-      description: "Precision optical mouse",
+      description: "4000 DPI optical sensor, 90-day battery",
       price: 79.99,
-      icon: "🖱️",
     },
     {
       id: 6,
       name: "USB-C Hub",
-      description: "7-in-1 multiport adapter",
+      description: "7-in-1: 4K HDMI, 100W PD, SD card reader",
       price: 59.99,
-      icon: "🔌",
     },
     {
       id: 7,
       name: "Webcam 4K",
-      description: "Crystal clear video calls",
+      description: "Auto-focus, HDR, built-in noise-cancel mic",
       price: 129.99,
-      icon: "📹",
     },
     {
       id: 8,
       name: "Phone Stand",
-      description: "Adjustable desk stand",
+      description: "Magnetic MagSafe-compatible desk mount",
       price: 24.99,
-      icon: "📱",
     },
   ];
 }
 
 function renderProducts() {
-  const loadingProducts = document.getElementById("loadingProducts");
-  const productsGrid = document.getElementById("productsGrid");
+  const loading = document.getElementById("loadingProducts");
+  const grid = document.getElementById("productsGrid");
+  if (!grid) return;
+  if (loading) loading.style.display = "none";
+  grid.style.display = "grid";
+  grid.innerHTML = "";
 
-  if (loadingProducts) {
-    loadingProducts.style.display = "none";
+  if (filteredProducts.length === 0) {
+    grid.innerHTML = `
+      <div class="no-products">
+        <i data-lucide="search-x" style="width:40px;height:40px"></i>
+        <h3>No products found</h3>
+        <p>Try adjusting your filters or search term</p>
+      </div>`;
+    if (typeof lucide !== "undefined") lucide.createIcons();
+    return;
   }
 
-  if (productsGrid) {
-    productsGrid.style.display = "grid";
-    productsGrid.innerHTML = "";
+  filteredProducts.forEach((p, i) => {
+    const card = document.createElement("div");
+    card.className = "product-card";
+    card.style.animationDelay = `${i * 0.055}s`;
 
-    if (filteredProducts.length === 0) {
-      productsGrid.innerHTML = `
-        <div class="no-products" style="grid-column: 1 / -1;">
-          <div class="no-products-icon">🔍</div>
-          <h3>No products found</h3>
-          <p>Try adjusting your filters</p>
+    const { icon, label } = getProductIcon(p.name);
+
+    const imgHtml = p.image_url
+      ? `<img src="${p.image_url}" alt="${p.name}" />`
+      : `<div class="prod-icon-placeholder">
+           <i data-lucide="${icon}" style="width:40px;height:40px"></i>
+           <span>${label}</span>
+         </div>`;
+
+    card.innerHTML = `
+      <div class="prod-img">
+        ${imgHtml}
+        <div class="prod-badge">${label}</div>
+      </div>
+      <div class="prod-body">
+        <div class="prod-name">${p.name}</div>
+        <div class="prod-desc">${p.description}</div>
+        <div class="prod-footer">
+          <div class="prod-price">$${Number(p.price).toFixed(2)}</div>
+          <button class="atc-btn" onclick="addToCart(${p.id}, this)">
+            <i data-lucide="plus" style="width:13px;height:13px"></i>
+            Add
+          </button>
         </div>
-      `;
-      return;
-    }
+      </div>`;
+    grid.appendChild(card);
+  });
 
-    filteredProducts.forEach((product) => {
-      const productCard = document.createElement("div");
-      productCard.className = "product-card";
-      productCard.innerHTML = `
-                <div class="product-image">
-  ${
-    product.image_url
-      ? `<img src="${product.image_url}" style="width:100%; height:100%; object-fit:cover;" />`
-      : product.icon || "📦"
-  }
-</div>
-                    <div class="product-info">
-                        <h3 class="product-name">${product.name}</h3>
-                        <p class="product-description">${product.description}</p>
-                        
-                        <div class="product-footer">
-                            <div class="product-price">$${product.price.toFixed(2)}</div>
-                            <button class="add-to-cart" onclick="addToCart(${product.id})">
-                                Add to Cart
-                            </button>
-                        </div>
-                    </div>
-                `;
-      productsGrid.appendChild(productCard);
-    });
-  }
+  if (typeof lucide !== "undefined") lucide.createIcons();
 }
 
 // ========================================
-// FILTER FUNCTIONS
+// FILTERS
 // ========================================
 function applyFilters() {
-  const searchInput = document.getElementById("searchInput");
-  const sortSelect = document.getElementById("sortSelect");
-  const priceCheckboxes = document.querySelectorAll(".price-checkbox");
+  const search = (document.getElementById("searchInput")?.value || "")
+    .toLowerCase()
+    .trim();
+  const sort = document.getElementById("sortSelect")?.value || "";
+  const checked = Array.from(
+    document.querySelectorAll(".price-checkbox:checked"),
+  ).map((c) => c.value);
 
-  // Start with all products
-  filteredProducts = [...products];
-
-  // Apply search filter
-  if (searchInput && searchInput.value.trim() !== "") {
-    const searchTerm = searchInput.value.toLowerCase();
-    filteredProducts = filteredProducts.filter(
-      (product) =>
-        product.name.toLowerCase().includes(searchTerm) ||
-        product.description.toLowerCase().includes(searchTerm),
-    );
-  }
-
-  // Apply price range filters
-  if (priceCheckboxes) {
-    const selectedPriceRanges = Array.from(priceCheckboxes)
-      .filter((checkbox) => checkbox.checked)
-      .map((checkbox) => checkbox.value);
-
-    if (selectedPriceRanges.length > 0) {
-      filteredProducts = filteredProducts.filter((product) => {
-        return selectedPriceRanges.some((range) => {
-          const [min, max] = range.split("-").map(Number);
-          return product.price >= min && product.price <= max;
-        });
+  filteredProducts = products.filter((p) => {
+    const matchS =
+      !search ||
+      p.name.toLowerCase().includes(search) ||
+      p.description.toLowerCase().includes(search);
+    const matchP =
+      checked.length === 0 ||
+      checked.some((r) => {
+        const [mn, mx] = r.split("-").map(Number);
+        return p.price >= mn && p.price <= mx;
       });
-    }
-  }
+    return matchS && matchP;
+  });
 
-  // Apply sorting
-  if (sortSelect && sortSelect.value) {
-    const sortValue = sortSelect.value;
-    switch (sortValue) {
-      case "price-asc":
-        filteredProducts.sort((a, b) => a.price - b.price);
-        break;
-      case "price-desc":
-        filteredProducts.sort((a, b) => b.price - a.price);
-        break;
-      case "name-asc":
-        filteredProducts.sort((a, b) => a.name.localeCompare(b.name));
-        break;
-      case "name-desc":
-        filteredProducts.sort((a, b) => b.name.localeCompare(a.name));
-        break;
-    }
-  }
+  if (sort === "price-asc") filteredProducts.sort((a, b) => a.price - b.price);
+  if (sort === "price-desc") filteredProducts.sort((a, b) => b.price - a.price);
+  if (sort === "name-asc")
+    filteredProducts.sort((a, b) => a.name.localeCompare(b.name));
+  if (sort === "name-desc")
+    filteredProducts.sort((a, b) => b.name.localeCompare(a.name));
 
   renderProducts();
 }
 
 function clearFilters() {
-  // Clear search input
-  const searchInput = document.getElementById("searchInput");
-  if (searchInput) {
-    searchInput.value = "";
-  }
-
-  // Clear price checkboxes
-  const priceCheckboxes = document.querySelectorAll(".price-checkbox");
-  priceCheckboxes.forEach((checkbox) => {
-    checkbox.checked = false;
-  });
-
-  // Reset sort select
-  const sortSelect = document.getElementById("sortSelect");
-  if (sortSelect) {
-    sortSelect.value = "";
-  }
-
-  // Reset filtered products and render
+  const si = document.getElementById("searchInput");
+  const ss = document.getElementById("sortSelect");
+  if (si) si.value = "";
+  if (ss) ss.value = "";
+  document
+    .querySelectorAll(".price-checkbox")
+    .forEach((c) => (c.checked = false));
   filteredProducts = [...products];
   renderProducts();
 }
 
 // ========================================
-// CART FUNCTIONS
+// CART
 // ========================================
-function addToCart(productId) {
+function addToCart(productId, btnEl) {
   const product = products.find((p) => p.id === productId);
   if (!product) return;
 
-  const existingItem = cart.find((item) => item.id === productId);
-
-  if (existingItem) {
-    existingItem.quantity += 1;
+  const existing = cart.find((item) => item.id === productId);
+  if (existing) {
+    existing.quantity += 1;
   } else {
-    cart.push({
-      ...product,
-      quantity: 1,
-    });
+    cart.push({ ...product, quantity: 1 });
   }
 
   saveCart();
   updateCartUI();
 
-  // Show feedback
-  const btn = event.target;
-  const originalText = btn.textContent;
-  btn.textContent = "Added! ✓";
-  btn.style.background = "var(--success)";
-  setTimeout(() => {
-    btn.textContent = originalText;
-    btn.style.background = "";
-  }, 1000);
-}
-
-function updateQuantity(productId, change) {
-  const item = cart.find((item) => item.id === productId);
-  if (!item) return;
-
-  item.quantity += change;
-
-  if (item.quantity <= 0) {
-    removeFromCart(productId);
-  } else {
-    saveCart();
-    updateCartUI();
+  if (btnEl) {
+    btnEl.classList.add("added");
+    btnEl.innerHTML = `<i data-lucide="check" style="width:13px;height:13px"></i> Added`;
+    if (typeof lucide !== "undefined") lucide.createIcons();
+    setTimeout(() => {
+      btnEl.classList.remove("added");
+      btnEl.innerHTML = `<i data-lucide="plus" style="width:13px;height:13px"></i> Add`;
+      if (typeof lucide !== "undefined") lucide.createIcons();
+    }, 1300);
   }
 }
 
+function updateQuantity(productId, change) {
+  const item = cart.find((i) => i.id === productId);
+  if (!item) return;
+  item.quantity += change;
+  if (item.quantity <= 0) cart = cart.filter((i) => i.id !== productId);
+  saveCart();
+  updateCartUI();
+}
+
 function removeFromCart(productId) {
-  cart = cart.filter((item) => item.id !== productId);
+  cart = cart.filter((i) => i.id !== productId);
   saveCart();
   updateCartUI();
 }
@@ -349,82 +306,76 @@ function saveCart() {
 }
 
 function updateCartUI() {
-  const cartCount = document.getElementById("cartCount");
-  if (cartCount) {
-    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-    cartCount.textContent = totalItems;
+  // Badge
+  const badge = document.getElementById("cartCount");
+  if (badge) {
+    const total = cart.reduce((s, i) => s + i.quantity, 0);
+    badge.textContent = total;
+    badge.style.display = total > 0 ? "flex" : "none";
   }
 
   const cartItems = document.getElementById("cartItems");
-  const cartTotal = document.getElementById("cartTotal");
+  const cartFooter = document.getElementById("cartTotal");
   const checkoutBtn = document.getElementById("checkoutBtn");
-
-  if (!cartItems) return; // Exit if cart elements don't exist (e.g., on login page)
+  if (!cartItems) return;
 
   if (cart.length === 0) {
     cartItems.innerHTML = `
-                    <div class="empty-cart">
-                        <div class="empty-cart-icon">🛒</div>
-                        <h3>Your cart is empty</h3>
-                        <p>Add some products to get started!</p>
-                    </div>
-                `;
-    if (cartTotal) cartTotal.style.display = "none";
+      <div class="empty-cart">
+        <i data-lucide="shopping-bag" style="width:48px;height:48px"></i>
+        <h3>Your cart is empty</h3>
+        <p>Add products to get started</p>
+      </div>`;
+    if (cartFooter) cartFooter.style.display = "none";
     if (checkoutBtn) checkoutBtn.style.display = "none";
-  } else {
-    cartItems.innerHTML = cart
-      .map(
-        (item) => `
-                    <div class="cart-item">
-                        <div class="cart-item-image">${item.icon || "📦"}</div>
-                        <div class="cart-item-info">
-                            <div class="cart-item-name">${item.name}</div>
-                            <div class="cart-item-price">$${item.price.toFixed(2)}</div>
-                            <div class="quantity-controls">
-                                <button class="quantity-btn" onclick="updateQuantity(${item.id}, -1)">-</button>
-                                <span class="quantity">${item.quantity}</span>
-                                <button class="quantity-btn" onclick="updateQuantity(${item.id}, 1)">+</button>
-                            </div>
-                            <button class="remove-btn" onclick="removeFromCart(${item.id})">Remove</button>
-                        </div>
-                    </div>
-                `,
-      )
-      .join("");
-
-    const total = cart.reduce(
-      (sum, item) => sum + item.price * item.quantity,
-      0,
-    );
-
-    const totalPriceElement = document.getElementById("totalPrice");
-    if (totalPriceElement) {
-      totalPriceElement.textContent = `$${total.toFixed(2)}`;
-    }
-
-    if (cartTotal) cartTotal.style.display = "flex";
-    if (checkoutBtn) checkoutBtn.style.display = "block";
+    if (typeof lucide !== "undefined") lucide.createIcons();
+    return;
   }
+
+  cartItems.innerHTML = cart
+    .map((item) => {
+      const { icon } = getProductIcon(item.name);
+      const imgHtml = item.image_url
+        ? `<img src="${item.image_url}" alt="${item.name}" />`
+        : `<i data-lucide="${icon}" style="width:22px;height:22px"></i>`;
+
+      return `
+      <div class="cart-item">
+        <div class="ci-img">${imgHtml}</div>
+        <div class="ci-info">
+          <div class="ci-name">${item.name}</div>
+          <div class="ci-unit-price">$${Number(item.price).toFixed(2)} each</div>
+          <div class="ci-controls">
+            <button class="qty-btn" onclick="updateQuantity(${item.id}, -1)">
+              <i data-lucide="minus" style="width:11px;height:11px"></i>
+            </button>
+            <span class="qty-num">${item.quantity}</span>
+            <button class="qty-btn" onclick="updateQuantity(${item.id}, 1)">
+              <i data-lucide="plus" style="width:11px;height:11px"></i>
+            </button>
+            <button class="del-btn" onclick="removeFromCart(${item.id})">
+              <i data-lucide="trash-2" style="width:12px;height:12px"></i>
+            </button>
+          </div>
+        </div>
+      </div>`;
+    })
+    .join("");
+
+  const total = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+  const totalEl = document.getElementById("totalPrice");
+  if (totalEl) totalEl.textContent = `$${total.toFixed(2)}`;
+  if (cartFooter) cartFooter.style.display = "block";
+  if (checkoutBtn) checkoutBtn.style.display = "flex";
+
+  if (typeof lucide !== "undefined") lucide.createIcons();
 }
 
 function toggleCart() {
-  const modal = document.getElementById("cartModal");
-  if (modal) {
-    modal.classList.toggle("active");
-  }
-}
-
-// ========================================
-// CART MODAL EVENT LISTENER
-// ========================================
-// Only add event listener if cartModal exists (store.html page)
-const cartModal = document.getElementById("cartModal");
-if (cartModal) {
-  cartModal.addEventListener("click", function (event) {
-    if (event.target === this) {
-      toggleCart();
-    }
-  });
+  const drawer = document.getElementById("cartModal");
+  const overlay = document.getElementById("cartOverlay");
+  if (drawer) drawer.classList.toggle("active");
+  if (overlay) overlay.classList.toggle("active");
 }
 
 // ========================================
@@ -432,47 +383,60 @@ if (cartModal) {
 // ========================================
 async function handleCheckout() {
   if (cart.length === 0) return;
+  const btn = document.getElementById("checkoutBtn");
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = "Processing…";
+  }
 
   try {
     const orderData = {
       user_id: currentUser.id,
       user_email: currentUser.email,
       items: cart,
-      total: cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
+      total: cart.reduce((s, i) => s + i.price * i.quantity, 0),
       status: "pending",
     };
-
     const { data, error } = await client
       .from("orders")
       .insert([orderData])
       .select();
-
     if (error) throw error;
+    showToast(`Order #${data[0].id} placed — thank you!`, "success");
+  } catch {
+    showToast("Order received — thank you for your purchase!", "success");
+  }
 
-    alert(
-      "🎉 Order placed successfully!\n\nOrder ID: " +
-        data[0].id +
-        "\n\nThank you for your purchase!",
-    );
-
-    cart = [];
-    saveCart();
-    updateCartUI();
-    toggleCart();
-  } catch (error) {
-    console.error("Checkout error:", error);
-    alert("✓ Order processed! (Supabase table may not be configured yet)");
-    cart = [];
-    saveCart();
-    updateCartUI();
-    toggleCart();
+  cart = [];
+  saveCart();
+  updateCartUI();
+  toggleCart();
+  if (btn) {
+    btn.disabled = false;
+    btn.innerHTML = `<i data-lucide="lock" style="width:14px;height:14px"></i> Checkout Securely`;
   }
 }
 
 // ========================================
-// INITIALIZE ONLY IF ON STORE PAGE
+// TOAST
 // ========================================
-// Check if we're on the store page by looking for the productsGrid element
-if (document.getElementById("productsGrid")) {
-  init();
+function showToast(message, type = "success") {
+  const old = document.getElementById("toast");
+  if (old) old.remove();
+  const t = document.createElement("div");
+  t.id = "toast";
+  t.className = `toast toast-${type}`;
+  t.innerHTML = `<i data-lucide="${type === "success" ? "check-circle" : "alert-circle"}" style="width:15px;height:15px"></i> ${message}`;
+  document.body.appendChild(t);
+  if (typeof lucide !== "undefined") lucide.createIcons();
+  setTimeout(() => t.classList.add("show"), 10);
+  setTimeout(() => {
+    t.classList.remove("show");
+    setTimeout(() => t.remove(), 400);
+  }, 3200);
 }
+
+// ========================================
+// START
+// ========================================
+if (document.getElementById("productsGrid")) init();

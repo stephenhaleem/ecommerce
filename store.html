@@ -3,1010 +3,1098 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TechGear Store - Shop Now</title>
+    <title>TechGear — Shop</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
     <link
-      href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Work+Sans:wght@300;400;500&family=Poppins:wght@300;400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap"
       rel="stylesheet"
     />
     <style>
       :root {
-        --primary: #ff6b35;
-        --primary-dark: #e55a2b;
-        --secondary: #004e89;
-        --accent: #ffc857;
-        --dark: #1a1a2e;
-        --light: #f8f9fa;
-        --success: #06d6a0;
-        --border: #e0e0e0;
-        --shadow: rgba(0, 0, 0, 0.1);
+        --bg: #f7f4ef;
+        --bg2: #eeeae2;
+        --white: #ffffff;
+        --ink: #1a1814;
+        --ink2: #4a4740;
+        --ink3: #9a9690;
+        --border: #e2ddd6;
+        --border2: #d4cfc8;
+        --accent: #c8533a;
+        --accent-lt: #f5e8e4;
+        --green: #2d7a5f;
+        --green-lt: #e3f3ed;
+        --radius: 12px;
+        --radius-lg: 18px;
+        --shadow:
+          0 1px 3px rgba(26, 24, 20, 0.06), 0 4px 16px rgba(26, 24, 20, 0.05);
+        --shadow-lg:
+          0 2px 8px rgba(26, 24, 20, 0.08), 0 16px 48px rgba(26, 24, 20, 0.1);
       }
-
-      * {
+      *,
+      *::before,
+      *::after {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
       }
 
       body {
-        font-family: "Work Sans", sans-serif;
-        background: var(--light);
-        color: var(--dark);
-        line-height: 1.6;
+        font-family: "DM Sans", sans-serif;
+        background: var(--bg);
+        color: var(--ink);
+        min-height: 100vh;
       }
 
-      html,
-      body {
-        scroll-behavior: smooth;
+      ::-webkit-scrollbar {
+        width: 5px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 10px;
       }
 
-      /* Header */
+      /* HEADER */
       header {
-        background: white;
-        box-shadow: 0 2px 10px var(--shadow);
         position: sticky;
         top: 0;
-        z-index: 100;
+        z-index: 300;
+        background: rgba(247, 244, 239, 0.92);
+        backdrop-filter: blur(18px);
+        border-bottom: 1px solid var(--border);
       }
-
-      .nav-container {
+      .nav-wrap {
+        max-width: 1380px;
         margin: 0 auto;
-        padding: 1.2rem 2rem;
+        padding: 0 2.5rem;
+        height: 64px;
         display: flex;
+        align-items: center;
         justify-content: space-between;
-        align-items: center;
-      }
-
-      .logo {
-        font-family: "Syne", sans-serif;
-        font-size: 1.8rem;
-        font-weight: 800;
-        color: var(--primary);
-        text-decoration: none;
-        letter-spacing: -1px;
-      }
-
-      .right-section {
-        display: flex;
         gap: 2rem;
-        align-items: center;
       }
-
-      /* Animated Navigation */
-      nav.animated-nav {
-        position: relative;
-        width: fit-content;
-        padding: 0 30px;
-        border-radius: 16px;
-        background: rgba(255, 107, 53, 0.1);
-        overflow: hidden;
-        border: 1px solid rgba(255, 107, 53, 0.2);
-        box-shadow:
-          0 8px 32px rgba(0, 0, 0, 0.1),
-          0 4px 16px rgba(0, 0, 0, 0.05);
-      }
-
-      nav.animated-nav:before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        backdrop-filter: url(#wave-distort);
-      }
-
-      nav.animated-nav > ul {
-        position: relative;
-        list-style: none;
-        display: flex;
-        justify-content: center;
-        height: 55px;
-        isolation: isolate;
-        padding: 0 15px;
-        margin: 0;
-      }
-
-      nav.animated-nav > ul::after {
-        content: "";
-        position: absolute;
-        left: 0;
-        bottom: 6px;
-        width: 12px;
-        height: 12px;
-        background: var(--primary);
-        border-radius: 50%;
-        transform: translateX(var(--translate-x, 0))
-          translateY(var(--translate-y, 0)) rotate(var(--rotate-x, 0deg));
-        transition: none;
-        opacity: 0;
-        z-index: -1;
-        box-shadow:
-          0 4px 16px rgba(255, 107, 53, 0.4),
-          0 2px 8px rgba(255, 107, 53, 0.3),
-          inset 0 1px 0 rgba(255, 255, 255, 0.8),
-          inset 0 -1px 0 rgba(0, 0, 0, 0.1);
-        border: 1px solid rgba(255, 107, 53, 0.6);
-      }
-
-      nav.animated-nav > ul li,
-      nav.animated-nav > ul li a {
-        position: relative;
-        width: 100%;
-        height: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        color: #1a1a1a;
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 0.95rem;
-        font-family: "Poppins", sans-serif;
-      }
-
-      nav.animated-nav > ul li a {
-        padding-inline: 20px;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      }
-
-      nav.animated-nav > ul li a:hover {
-        color: var(--primary);
-        transform: translateY(-2px);
-      }
-
-      nav.animated-nav > ul li a:focus {
-        outline: none;
-      }
-
-      nav.animated-nav > ul li a.active {
-        color: var(--primary);
-        transform: translateY(-2px);
-      }
-
-      nav.animated-nav > ul.show-indicator::after {
-        opacity: 1;
-      }
-
-      nav.animated-nav > ul li a:active {
-        transform: translateY(-2px);
-      }
-
-      .user-info {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-      }
-
-      .user-email {
-        font-size: 0.9rem;
-        color: var(--secondary);
-        font-weight: 500;
-      }
-
-      .btn-logout {
-        background: none;
-        border: 1px solid var(--border);
-        padding: 0.5rem 1rem;
-        border-radius: 6px;
-        cursor: pointer;
-        font-weight: 500;
-        transition: all 0.3s;
-        font-family: "Work Sans", sans-serif;
-      }
-
-      .btn-logout:hover {
-        background: var(--light);
-        border-color: var(--primary);
-        color: var(--primary);
-      }
-
-      .cart-btn {
-        background: var(--primary);
-        color: white;
-        border: none;
-        padding: 0.7rem 1.5rem;
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: 600;
-        font-family: "Syne", sans-serif;
-        position: relative;
-        transition: all 0.3s;
-      }
-
-      .cart-btn:hover {
-        background: var(--primary-dark);
-        transform: translateY(-2px);
-      }
-
-      .cart-count {
-        position: absolute;
-        top: -8px;
-        right: -8px;
-        background: var(--secondary);
-        color: white;
-        border-radius: 50%;
-        width: 22px;
-        height: 22px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 0.75rem;
+      .logo {
+        font-family: "Playfair Display", serif;
+        font-size: 1.45rem;
         font-weight: 700;
+        letter-spacing: -0.3px;
+        color: var(--ink);
+        text-decoration: none;
+        flex-shrink: 0;
       }
-
-      /* Hero Section */
-      .hero {
-        background: linear-gradient(135deg, var(--secondary) 0%, #003366 100%);
-        color: white;
-        padding: 3rem 2rem;
-        text-align: center;
+      .logo em {
+        font-style: normal;
+        color: var(--accent);
       }
-
-      .hero h1 {
-        font-family: "Syne", sans-serif;
-        font-size: 2.5rem;
-        font-weight: 800;
-        margin-bottom: 0.5rem;
-        animation: fadeInUp 0.6s ease;
-      }
-
-      .hero p {
-        font-size: 1.1rem;
-        opacity: 0.95;
-        animation: fadeInUp 0.6s ease 0.2s backwards;
-      }
-
-      /* Main Container */
-      .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 3rem 2rem;
-      }
-
-      /* Filters Section */
-      .filters-section {
-        margin-bottom: 2rem;
-        animation: fadeInUp 0.6s ease 0.3s backwards;
-      }
-
-      .filters-container {
-        background: white;
-        padding: 1.5rem;
-        border-radius: 12px;
-        box-shadow: 0 2px 10px var(--shadow);
+      .nav-links {
         display: flex;
-        gap: 1.5rem;
-        align-items: center;
-        flex-wrap: wrap;
+        gap: 0.25rem;
       }
-
-      .filter-group {
-        display: flex;
-        align-items: center;
-        gap: 0.8rem;
-      }
-
-      .filter-label {
-        font-weight: 600;
-        color: var(--dark);
-        font-size: 0.95rem;
-      }
-
-      .search-input {
-        padding: 0.7rem 1rem;
-        border: 2px solid var(--border);
+      .nav-link {
+        padding: 0.4rem 0.85rem;
         border-radius: 8px;
-        font-size: 0.95rem;
-        width: 250px;
-        transition: all 0.3s;
-        font-family: "Work Sans", sans-serif;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: var(--ink2);
+        text-decoration: none;
+        transition: all 0.18s;
       }
-
-      .search-input:focus {
-        outline: none;
-        border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+      .nav-link:hover {
+        background: var(--bg2);
+        color: var(--ink);
       }
-
-      .price-filters {
-        display: flex;
-        gap: 1rem;
-        flex-wrap: wrap;
-      }
-
-      .filter-checkbox {
+      .nav-right {
         display: flex;
         align-items: center;
-        gap: 0.4rem;
-        cursor: pointer;
-        font-size: 0.9rem;
-        user-select: none;
+        gap: 0.7rem;
+        flex-shrink: 0;
       }
-
-      .filter-checkbox input[type="checkbox"] {
+      .user-chip {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.38rem 0.85rem;
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 100px;
+        font-size: 0.78rem;
+        font-weight: 500;
+        color: var(--ink2);
+      }
+      #userEmail {
+        max-width: 140px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .icon-btn {
+        width: 36px;
+        height: 36px;
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: 9px;
         cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--ink2);
+        transition: all 0.18s;
+      }
+      .icon-btn:hover {
+        background: var(--bg2);
+        border-color: var(--border2);
+        color: var(--ink);
+      }
+      .cart-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--ink);
+        color: #fff;
+        border: none;
+        padding: 0.52rem 1.1rem;
+        border-radius: 10px;
+        font-family: "DM Sans", sans-serif;
+        font-size: 0.875rem;
+        font-weight: 600;
+        cursor: pointer;
+        position: relative;
+        transition: all 0.2s;
+      }
+      .cart-btn:hover {
+        background: #2d2a25;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 18px rgba(26, 24, 20, 0.22);
+      }
+      .cart-badge {
+        position: absolute;
+        top: -7px;
+        right: -7px;
+        background: var(--accent);
+        color: #fff;
         width: 18px;
         height: 18px;
-        accent-color: var(--primary);
+        border-radius: 50%;
+        font-size: 0.66rem;
+        font-weight: 700;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid var(--bg);
+      }
+
+      /* HERO */
+      .hero-strip {
+        background: var(--white);
+        border-bottom: 1px solid var(--border);
+      }
+      .hero {
+        max-width: 1380px;
+        margin: 0 auto;
+        padding: 3rem 2.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 2rem;
+      }
+      .hero-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: var(--accent-lt);
+        color: var(--accent);
+        padding: 0.28rem 0.75rem;
+        border-radius: 100px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        margin-bottom: 0.9rem;
+      }
+      .hero h1 {
+        font-family: "Playfair Display", serif;
+        font-size: clamp(1.9rem, 3.5vw, 3rem);
+        font-weight: 700;
+        letter-spacing: -1px;
+        line-height: 1.13;
+        margin-bottom: 0.75rem;
+      }
+      .hero p {
+        font-size: 0.93rem;
+        color: var(--ink2);
+        line-height: 1.7;
+        max-width: 400px;
+      }
+      .hero-stats {
+        display: flex;
+        gap: 2.5rem;
+        flex-shrink: 0;
+      }
+      .stat {
+        text-align: center;
+      }
+      .stat-num {
+        font-family: "Playfair Display", serif;
+        font-size: 1.9rem;
+        font-weight: 700;
+        color: var(--ink);
+        line-height: 1;
+      }
+      .stat-label {
+        font-size: 0.72rem;
+        color: var(--ink3);
+        margin-top: 0.25rem;
+        font-weight: 500;
+      }
+
+      /* LAYOUT */
+      .page-body {
+        max-width: 1380px;
+        margin: 0 auto;
+        padding: 2.5rem 2.5rem 4rem;
+        display: grid;
+        grid-template-columns: 220px 1fr;
+        gap: 2.5rem;
+        align-items: start;
+      }
+
+      /* SIDEBAR */
+      .sidebar {
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 1.4rem;
+        position: sticky;
+        top: 78px;
+      }
+      .sb-section {
+        margin-bottom: 1.6rem;
+      }
+      .sb-section:last-of-type {
+        margin-bottom: 0;
+      }
+      .sb-label {
+        font-size: 0.68rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--ink3);
+        margin-bottom: 0.8rem;
+      }
+      .search-box {
+        position: relative;
+      }
+      .search-box svg {
+        position: absolute;
+        left: 0.7rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--ink3);
+        pointer-events: none;
+      }
+      .search-input {
+        width: 100%;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        color: var(--ink);
+        padding: 0.62rem 0.75rem 0.62rem 2.3rem;
+        border-radius: 9px;
+        font-family: "DM Sans", sans-serif;
+        font-size: 0.83rem;
+        outline: none;
+        transition: all 0.18s;
+      }
+      .search-input::placeholder {
+        color: var(--ink3);
+      }
+      .search-input:focus {
+        border-color: var(--ink2);
+        background: var(--white);
+        box-shadow: 0 0 0 3px rgba(26, 24, 20, 0.06);
+      }
+
+      .price-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+      }
+      .price-item {
+        display: flex;
+        align-items: center;
+        gap: 0.65rem;
+        padding: 0.45rem 0.55rem;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background 0.15s;
+        user-select: none;
+        font-size: 0.83rem;
+        color: var(--ink2);
+      }
+      .price-item:hover {
+        background: var(--bg);
+      }
+      .price-item input {
+        display: none;
+      }
+      .chk {
+        width: 15px;
+        height: 15px;
+        border: 1.5px solid var(--border2);
+        border-radius: 4px;
+        flex-shrink: 0;
+        transition: all 0.15s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .price-item:has(input:checked) .chk {
+        background: var(--ink);
+        border-color: var(--ink);
+      }
+      .price-item:has(input:checked) .chk::after {
+        content: "";
+        width: 4px;
+        height: 7px;
+        border: 2px solid #fff;
+        border-top: none;
+        border-left: none;
+        transform: rotate(45deg) translateY(-1px);
+        display: block;
+      }
+      .price-item:has(input:checked) {
+        color: var(--ink);
+        font-weight: 500;
       }
 
       .sort-select {
-        padding: 0.7rem 1rem;
-        border: 2px solid var(--border);
-        border-radius: 8px;
-        font-size: 0.95rem;
+        width: 100%;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        color: var(--ink);
+        padding: 0.62rem 2rem 0.62rem 0.75rem;
+        border-radius: 9px;
+        font-family: "DM Sans", sans-serif;
+        font-size: 0.83rem;
         cursor: pointer;
-        background: white;
-        font-family: "Work Sans", sans-serif;
-        transition: all 0.3s;
-      }
-
-      .sort-select:focus {
         outline: none;
-        border-color: var(--primary);
+        transition: all 0.18s;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%239A9690' stroke-width='2.5'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.7rem center;
       }
-
-      .clear-filters-btn {
-        background: var(--secondary);
-        color: white;
-        border: none;
-        padding: 0.7rem 1.3rem;
-        border-radius: 8px;
+      .sort-select:focus {
+        border-color: var(--ink2);
+      }
+      .clear-btn {
+        width: 100%;
+        background: none;
+        border: 1px solid var(--border);
+        color: var(--ink3);
+        padding: 0.58rem;
+        border-radius: 9px;
+        font-family: "DM Sans", sans-serif;
+        font-size: 0.8rem;
+        font-weight: 500;
         cursor: pointer;
+        transition: all 0.18s;
+        margin-top: 1rem;
+      }
+      .clear-btn:hover {
+        border-color: var(--border2);
+        color: var(--ink);
+        background: var(--bg);
+      }
+
+      /* PRODUCTS */
+      .prod-head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        margin-bottom: 1.4rem;
+      }
+      .prod-title {
+        font-family: "Playfair Display", serif;
+        font-size: 1.35rem;
         font-weight: 600;
-        font-family: "Syne", sans-serif;
-        transition: all 0.3s;
-        margin-left: auto;
+        letter-spacing: -0.3px;
       }
-
-      .clear-filters-btn:hover {
-        background: #003d6b;
-        transform: translateY(-2px);
-      }
-
-      /* Products Grid */
-      .products-section h2 {
-        font-family: "Syne", sans-serif;
-        font-size: 2rem;
-        margin-bottom: 2rem;
-        color: var(--dark);
+      .prod-meta {
+        font-size: 0.8rem;
+        color: var(--ink3);
+        font-weight: 500;
       }
 
       .products-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 2rem;
-        animation: fadeInUp 0.6s ease 0.4s backwards;
+        grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+        gap: 1.2rem;
+      }
+
+      @keyframes cardIn {
+        from {
+          opacity: 0;
+          transform: translateY(14px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
 
       .product-card {
-        background: white;
-        border-radius: 12px;
+        background: var(--white);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
         overflow: hidden;
-        box-shadow: 0 4px 15px var(--shadow);
-        transition: all 0.3s;
-        cursor: pointer;
-      }
-
-      .product-card:hover {
-        transform: translateY(-8px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-      }
-
-      .product-info {
-        padding: 1.5rem;
-      }
-
-      .product-name {
-        font-family: "Syne", sans-serif;
-        font-size: 1.3rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-        color: var(--dark);
-      }
-
-      .product-description {
-        color: #666;
-        font-size: 0.95rem;
-        margin-bottom: 1rem;
-      }
-
-      .product-footer {
+        transition:
+          box-shadow 0.22s,
+          transform 0.22s,
+          border-color 0.22s;
+        animation: cardIn 0.38s ease both;
         display: flex;
-        justify-content: space-between;
-        align-items: center;
+        flex-direction: column;
+        cursor: default;
+      }
+      .product-card:hover {
+        box-shadow: var(--shadow-lg);
+        transform: translateY(-3px);
+        border-color: var(--border2);
       }
 
-      .product-price {
-        font-family: "Syne", sans-serif;
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--primary);
-      }
-
-      .add-to-cart {
-        background: var(--primary);
-        color: white;
-        border: none;
-        padding: 0.7rem 1.3rem;
-        border-radius: 8px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s;
-        font-family: "Syne", sans-serif;
-      }
-
-      .add-to-cart:hover {
-        background: var(--primary-dark);
-        transform: scale(1.05);
-      }
-
-      .no-products {
-        text-align: center;
-        padding: 3rem;
-        color: #999;
-      }
-
-      .no-products-icon {
-        font-size: 4rem;
-        margin-bottom: 1rem;
-      }
-
-      /* Cart Modal */
-      .modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.7);
-        z-index: 1000;
-        animation: fadeIn 0.3s;
-      }
-
-      .modal.active {
+      .prod-img {
+        aspect-ratio: 4/3;
+        background: var(--bg);
         display: flex;
         align-items: center;
         justify-content: center;
+        overflow: hidden;
+        position: relative;
+      }
+      .prod-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.4s ease;
+      }
+      .product-card:hover .prod-img img {
+        transform: scale(1.04);
       }
 
-      .modal-content {
-        background: white;
-        padding: 2.5rem;
-        border-radius: 16px;
-        max-width: 600px;
-        width: 90%;
-        max-height: 80vh;
-        overflow-y: auto;
-        animation: slideUp 0.3s;
-      }
-
-      .modal-header {
+      /* Icon placeholder — actual SVG icon centered on a tinted bg */
+      .prod-icon-placeholder {
+        width: 100%;
+        height: 100%;
         display: flex;
-        justify-content: space-between;
+        flex-direction: column;
         align-items: center;
-        margin-bottom: 2rem;
-        padding-bottom: 1rem;
-        border-bottom: 2px solid var(--border);
+        justify-content: center;
+        gap: 0.6rem;
+        background: linear-gradient(150deg, var(--bg) 0%, var(--bg2) 100%);
+      }
+      .prod-icon-placeholder svg {
+        color: var(--ink2);
+      }
+      .prod-icon-placeholder span {
+        font-size: 0.65rem;
+        font-weight: 600;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        color: var(--ink3);
       }
 
-      .modal-header h2 {
-        font-family: "Syne", sans-serif;
-        font-size: 1.8rem;
-        color: var(--dark);
+      .prod-badge {
+        position: absolute;
+        top: 0.7rem;
+        left: 0.7rem;
+        background: var(--white);
+        border: 1px solid var(--border);
+        padding: 0.22rem 0.55rem;
+        border-radius: 100px;
+        font-size: 0.65rem;
+        font-weight: 600;
+        color: var(--ink2);
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
       }
 
-      .close-btn {
-        background: none;
+      .prod-body {
+        padding: 1.15rem;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+      .prod-name {
+        font-weight: 600;
+        font-size: 0.92rem;
+        color: var(--ink);
+        margin-bottom: 0.28rem;
+        letter-spacing: -0.1px;
+      }
+      .prod-desc {
+        font-size: 0.79rem;
+        color: var(--ink3);
+        line-height: 1.55;
+        flex: 1;
+        margin-bottom: 1rem;
+      }
+      .prod-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+      }
+      .prod-price {
+        font-family: "Playfair Display", serif;
+        font-size: 1.12rem;
+        font-weight: 600;
+        color: var(--ink);
+      }
+      .atc-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        background: var(--ink);
+        color: #fff;
         border: none;
-        font-size: 2rem;
+        padding: 0.48rem 0.85rem;
+        border-radius: 9px;
+        font-family: "DM Sans", sans-serif;
+        font-size: 0.78rem;
+        font-weight: 600;
         cursor: pointer;
-        color: #999;
-        transition: color 0.3s;
+        transition: all 0.2s;
+        white-space: nowrap;
+      }
+      .atc-btn:hover {
+        background: var(--accent);
+      }
+      .atc-btn.added {
+        background: var(--green);
       }
 
-      .close-btn:hover {
-        color: var(--dark);
+      .no-products {
+        grid-column: 1/-1;
+        text-align: center;
+        padding: 5rem 2rem;
+        color: var(--ink3);
+      }
+      .no-products svg {
+        margin: 0 auto 1rem;
+        display: block;
+        opacity: 0.35;
+      }
+      .no-products h3 {
+        font-size: 1rem;
+        color: var(--ink2);
+        margin-bottom: 0.4rem;
+      }
+
+      .loading-state {
+        text-align: center;
+        padding: 5rem;
+        color: var(--ink3);
+        font-size: 0.9rem;
+      }
+
+      /* CART DRAWER */
+      .drawer-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(26, 24, 20, 0.35);
+        backdrop-filter: blur(5px);
+        z-index: 600;
+      }
+      .drawer-overlay.active {
+        display: block;
+      }
+
+      .cart-drawer {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 410px;
+        max-width: 100vw;
+        background: var(--white);
+        border-left: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        z-index: 700;
+        transform: translateX(100%);
+        transition: transform 0.3s cubic-bezier(0.32, 0, 0.67, 0);
+        box-shadow: -6px 0 40px rgba(26, 24, 20, 0.1);
+      }
+      .cart-drawer.active {
+        transform: translateX(0);
+        transition-timing-function: cubic-bezier(0.33, 1, 0.68, 1);
+      }
+
+      .drawer-head {
+        padding: 1.4rem 1.65rem;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .drawer-title-row {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+      }
+      .drawer-title {
+        font-family: "Playfair Display", serif;
+        font-size: 1.15rem;
+        font-weight: 600;
+      }
+      .drawer-count-pill {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        padding: 0.18rem 0.55rem;
+        border-radius: 100px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: var(--ink3);
+      }
+
+      .drawer-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 1.25rem 1.65rem;
+      }
+      .drawer-body::-webkit-scrollbar {
+        width: 4px;
+      }
+      .drawer-body::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 2px;
       }
 
       .cart-item {
         display: flex;
-        gap: 1.5rem;
-        padding: 1.5rem;
-        background: var(--light);
-        border-radius: 10px;
-        margin-bottom: 1rem;
+        gap: 0.9rem;
+        padding: 0.9rem;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        margin-bottom: 0.7rem;
+        transition: border-color 0.18s;
+      }
+      .cart-item:hover {
+        border-color: var(--border2);
       }
 
-      .cart-item-image {
-        width: 80px;
-        height: 80px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 8px;
+      .ci-img {
+        width: 58px;
+        height: 58px;
+        border-radius: 9px;
+        background: var(--white);
+        border: 1px solid var(--border);
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 2rem;
-        color: white;
+        flex-shrink: 0;
+        overflow: hidden;
+      }
+      .ci-img img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .ci-img svg {
+        color: var(--ink3);
+      }
+
+      .ci-info {
+        flex: 1;
+        min-width: 0;
+      }
+      .ci-name {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--ink);
+        margin-bottom: 0.18rem;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .ci-unit-price {
+        font-size: 0.78rem;
+        color: var(--ink3);
+        margin-bottom: 0.55rem;
+      }
+      .ci-controls {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+      }
+      .qty-btn {
+        width: 25px;
+        height: 25px;
+        border-radius: 6px;
+        background: var(--white);
+        border: 1px solid var(--border);
+        color: var(--ink2);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.15s;
         flex-shrink: 0;
       }
-
-      .cart-item-info {
-        flex: 1;
+      .qty-btn:hover {
+        background: var(--bg2);
+        border-color: var(--border2);
+        color: var(--ink);
       }
-
-      .cart-item-name {
-        font-family: "Syne", sans-serif;
-        font-weight: 700;
-        font-size: 1.1rem;
-        margin-bottom: 0.5rem;
-      }
-
-      .cart-item-price {
-        color: var(--primary);
+      .qty-num {
+        font-size: 0.82rem;
         font-weight: 600;
-        font-size: 1.1rem;
-      }
-
-      .quantity-controls {
-        display: flex;
-        gap: 0.5rem;
-        align-items: center;
-        margin-top: 0.5rem;
-      }
-
-      .quantity-btn {
-        width: 30px;
-        height: 30px;
-        border: none;
-        background: var(--secondary);
-        color: white;
-        border-radius: 6px;
-        cursor: pointer;
-        font-weight: 700;
-        transition: all 0.3s;
-      }
-
-      .quantity-btn:hover {
-        background: var(--primary);
-      }
-
-      .quantity {
-        font-weight: 600;
-        min-width: 30px;
+        min-width: 18px;
         text-align: center;
       }
-
-      .remove-btn {
-        background: #dc3545;
-        color: white;
-        border: none;
-        padding: 0.5rem 1rem;
+      .del-btn {
+        margin-left: auto;
+        width: 25px;
+        height: 25px;
         border-radius: 6px;
+        background: none;
+        border: 1px solid transparent;
+        color: var(--ink3);
         cursor: pointer;
-        font-weight: 600;
-        margin-top: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.15s;
+      }
+      .del-btn:hover {
+        background: #fee2e2;
+        border-color: #fecaca;
+        color: #dc2626;
       }
 
-      .cart-total {
-        margin-top: 2rem;
-        padding-top: 2rem;
-        border-top: 2px solid var(--border);
+      .drawer-foot {
+        padding: 1.4rem 1.65rem;
+        border-top: 1px solid var(--border);
+      }
+      .subtotal-row {
         display: flex;
         justify-content: space-between;
-        align-items: center;
+        align-items: baseline;
+        margin-bottom: 0.3rem;
       }
-
-      .cart-total h3 {
-        font-family: "Syne", sans-serif;
-        font-size: 1.5rem;
+      .subtotal-lbl {
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: var(--ink3);
       }
-
-      .total-price {
-        font-family: "Syne", sans-serif;
-        font-size: 2rem;
-        font-weight: 800;
-        color: var(--primary);
+      .subtotal-val {
+        font-family: "Playfair Display", serif;
+        font-size: 1.45rem;
+        font-weight: 700;
+        color: var(--ink);
       }
-
+      .subtotal-note {
+        font-size: 0.73rem;
+        color: var(--ink3);
+        margin-bottom: 1.1rem;
+      }
       .checkout-btn {
         width: 100%;
-        margin-top: 1.5rem;
-        padding: 1rem;
-        font-size: 1.1rem;
-        background: var(--success);
-        color: white;
+        background: var(--ink);
+        color: #fff;
         border: none;
-        border-radius: 10px;
-        font-weight: 700;
+        padding: 0.95rem 1rem;
+        border-radius: 12px;
+        font-family: "DM Sans", sans-serif;
+        font-size: 0.9rem;
+        font-weight: 600;
         cursor: pointer;
-        font-family: "Syne", sans-serif;
-        transition: all 0.3s;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
       }
-
       .checkout-btn:hover {
-        background: #05c296;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(6, 214, 160, 0.3);
+        background: var(--accent);
+        box-shadow: 0 6px 22px rgba(200, 83, 58, 0.28);
+        transform: translateY(-1px);
+      }
+      .checkout-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none;
       }
 
       .empty-cart {
         text-align: center;
-        padding: 3rem 1rem;
-        color: #999;
+        padding: 4rem 1.5rem;
+      }
+      .empty-cart svg {
+        margin: 0 auto 1.25rem;
+        display: block;
+        color: var(--ink3);
+        opacity: 0.35;
+      }
+      .empty-cart h3 {
+        font-size: 0.97rem;
+        font-weight: 600;
+        margin-bottom: 0.35rem;
+        color: var(--ink2);
+      }
+      .empty-cart p {
+        font-size: 0.82rem;
+        color: var(--ink3);
       }
 
-      .empty-cart-icon {
-        font-size: 4rem;
-        margin-bottom: 1rem;
+      /* TOAST */
+      .toast {
+        position: fixed;
+        bottom: 2rem;
+        left: 50%;
+        transform: translateX(-50%) translateY(10px);
+        background: var(--ink);
+        color: #fff;
+        padding: 0.72rem 1.4rem;
+        border-radius: 100px;
+        font-size: 0.83rem;
+        font-weight: 500;
+        opacity: 0;
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        z-index: 9999;
+        pointer-events: none;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        box-shadow: 0 4px 20px rgba(26, 24, 20, 0.22);
+      }
+      .toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+      .toast-success {
+        background: var(--green);
       }
 
-      /* Loading */
-      .loading {
-        text-align: center;
-        padding: 3rem;
-        color: var(--primary);
-        font-size: 1.2rem;
-      }
-
-      /* Animations */
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
+      @media (max-width: 960px) {
+        .page-body {
+          grid-template-columns: 1fr;
         }
-        to {
-          opacity: 1;
+        .sidebar {
+          position: static;
         }
-      }
-
-      @keyframes fadeInUp {
-        from {
-          opacity: 0;
-          transform: translateY(30px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      @keyframes slideUp {
-        from {
-          transform: translateY(50px);
-          opacity: 0;
-        }
-        to {
-          transform: translateY(0);
-          opacity: 1;
-        }
-      }
-
-      /* Responsive */
-      @media (max-width: 768px) {
-        .hero h1 {
-          font-size: 2rem;
-        }
-
-        .right-section {
-          gap: 1rem;
-        }
-
-        .user-info {
-          flex-direction: column;
-          gap: 0.5rem;
-          align-items: flex-end;
-        }
-
-        .products-grid {
-          grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-          gap: 1.5rem;
-        }
-
-        nav.animated-nav {
+        .hero-stats {
           display: none;
         }
-
-        .filters-container {
-          flex-direction: column;
-          align-items: stretch;
+      }
+      @media (max-width: 640px) {
+        .nav-wrap {
+          padding: 0 1.25rem;
         }
-
-        .filter-group {
-          flex-direction: column;
-          align-items: stretch;
+        .nav-links,
+        .user-chip {
+          display: none;
         }
-
-        .search-input {
-          width: 100%;
+        .page-body {
+          padding: 1.5rem 1.25rem 3rem;
         }
-
-        .clear-filters-btn {
-          margin-left: 0;
+        .hero {
+          padding: 2rem 1.25rem;
         }
       }
     </style>
   </head>
   <body>
-    <!-- SVG Filter for Wave Effect -->
-    <svg style="display: none">
-      <defs>
-        <filter id="wave-distort" x="0%" y="0%" width="100%" height="100%">
-          <feTurbulence
-            type="fractalNoise"
-            baseFrequency="0.0038 0.0038"
-            numOctaves="1"
-            seed="2"
-            result="roughNoise"
-          />
-          <feGaussianBlur
-            in="roughNoise"
-            stdDeviation="8.5"
-            result="softNoise"
-          />
-          <feComposite
-            operator="arithmetic"
-            k1="0"
-            k2="1"
-            k3="2"
-            k4="0"
-            in="softNoise"
-            result="mergedMap"
-          />
-          <feDisplacementMap
-            in="SourceGraphic"
-            in2="mergedMap"
-            scale="-42"
-            xChannelSelector="G"
-            yChannelSelector="G"
-          />
-        </filter>
-      </defs>
-    </svg>
-
-    <!-- Header -->
     <header>
-      <div class="nav-container">
-        <a href="#" class="logo">TechGear</a>
-
-        <!-- Animated Navigation -->
-        <nav class="animated-nav">
-          <ul>
-            <li><a href="#featured" class="nav-link">Featured</a></li>
-            <li><a href="#products" class="nav-link">Products</a></li>
-            <li><a href="#deals" class="nav-link">Deals</a></li>
-            <li><a href="#about" class="nav-link">About</a></li>
-          </ul>
+      <div class="nav-wrap">
+        <a href="#" class="logo">Tech<em>Gear</em></a>
+        <nav class="nav-links">
+          <a href="#" class="nav-link">Store</a>
+          <a href="#" class="nav-link">Collections</a>
+          <a href="#" class="nav-link">About</a>
         </nav>
-
-        <div class="right-section">
-          <div class="user-info">
-            <span class="user-email" id="userEmail">Loading...</span>
-            <button class="btn-logout" onclick="handleLogout()">
-              Sign Out
-            </button>
+        <div class="nav-right">
+          <div class="user-chip">
+            <i
+              data-lucide="user"
+              style="width: 12px; height: 12px; color: var(--ink3)"
+            ></i>
+            <span id="userEmail">Loading…</span>
           </div>
+          <button class="icon-btn" onclick="handleLogout()" title="Sign out">
+            <i data-lucide="log-out" style="width: 15px; height: 15px"></i>
+          </button>
           <button class="cart-btn" onclick="toggleCart()">
+            <i data-lucide="shopping-bag" style="width: 15px; height: 15px"></i>
             Cart
-            <span class="cart-count" id="cartCount">0</span>
+            <span class="cart-badge" id="cartCount">0</span>
           </button>
         </div>
       </div>
     </header>
 
-    <!-- Hero Section -->
-    <section class="hero" id="featured">
-      <h1>Welcome to TechGear Store</h1>
-      <p>Discover premium tech products for your workspace</p>
-    </section>
+    <div class="hero-strip">
+      <div class="hero">
+        <div>
+          <h1>Gear that works<br />as hard as you do</h1>
+          <p>
+            Curated tech for the modern workspace. Precision-built, thoughtfully
+            designed.
+          </p>
+        </div>
+        <div class="hero-stats">
+          <div class="stat">
+            <div class="stat-num">50+</div>
+            <div class="stat-label">Products</div>
+          </div>
+          <div class="stat">
+            <div class="stat-num">4.9★</div>
+            <div class="stat-label">Avg. Rating</div>
+          </div>
+          <div class="stat">
+            <div class="stat-num">2k+</div>
+            <div class="stat-label">Customers</div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-    <!-- Main Container -->
-    <div class="container">
-      <!-- Filters Section -->
-      <section class="filters-section">
-        <div class="filters-container">
-          <!-- Search Filter -->
-          <div class="filter-group">
+    <div class="page-body">
+      <aside class="sidebar">
+        <div class="sb-section">
+          <div class="sb-label">Search</div>
+          <div class="search-box">
+            <i data-lucide="search" style="width: 13px; height: 13px"></i>
             <input
               type="text"
               id="searchInput"
               class="search-input"
-              placeholder="🔍 Search products..."
-              onkeyup="applyFilters()"
+              placeholder="Search products…"
+              oninput="applyFilters()"
             />
           </div>
-
-          <!-- Price Range Filter -->
-          <div class="filter-group">
-            <label class="filter-label">Price Range:</label>
-            <div class="price-filters">
-              <label class="filter-checkbox">
-                <input
-                  type="checkbox"
-                  value="0-50"
-                  class="price-checkbox"
-                  onchange="applyFilters()"
-                />
-                <span>Under $50</span>
-              </label>
-              <label class="filter-checkbox">
-                <input
-                  type="checkbox"
-                  value="50-100"
-                  class="price-checkbox"
-                  onchange="applyFilters()"
-                />
-                <span>$50 - $100</span>
-              </label>
-              <label class="filter-checkbox">
-                <input
-                  type="checkbox"
-                  value="100-200"
-                  class="price-checkbox"
-                  onchange="applyFilters()"
-                />
-                <span>$100 - $200</span>
-              </label>
-              <label class="filter-checkbox">
-                <input
-                  type="checkbox"
-                  value="200-999999"
-                  class="price-checkbox"
-                  onchange="applyFilters()"
-                />
-                <span>Over $200</span>
-              </label>
-            </div>
-          </div>
-
-          <!-- Sort Filter -->
-          <div class="filter-group">
-            <label class="filter-label">Sort By:</label>
-            <select
-              id="sortSelect"
-              class="sort-select"
-              onchange="applyFilters()"
-            >
-              <option value="">Default</option>
-              <option value="price-asc">Price: Low to High</option>
-              <option value="price-desc">Price: High to Low</option>
-              <option value="name-asc">Name: A to Z</option>
-              <option value="name-desc">Name: Z to A</option>
-            </select>
-          </div>
-
-          <!-- Clear Filters Button -->
-          <button class="clear-filters-btn" onclick="clearFilters()">
-            Clear Filters
-          </button>
         </div>
-      </section>
+        <div class="sb-section">
+          <div class="sb-label">Price Range</div>
+          <div class="price-list">
+            <label class="price-item"
+              ><input
+                type="checkbox"
+                value="0-50"
+                class="price-checkbox"
+                onchange="applyFilters()"
+              /><span class="chk"></span>Under $50</label
+            >
+            <label class="price-item"
+              ><input
+                type="checkbox"
+                value="50-100"
+                class="price-checkbox"
+                onchange="applyFilters()"
+              /><span class="chk"></span>$50 – $100</label
+            >
+            <label class="price-item"
+              ><input
+                type="checkbox"
+                value="100-200"
+                class="price-checkbox"
+                onchange="applyFilters()"
+              /><span class="chk"></span>$100 – $200</label
+            >
+            <label class="price-item"
+              ><input
+                type="checkbox"
+                value="200-999999"
+                class="price-checkbox"
+                onchange="applyFilters()"
+              /><span class="chk"></span>Over $200</label
+            >
+          </div>
+        </div>
+        <div class="sb-section">
+          <div class="sb-label">Sort By</div>
+          <select id="sortSelect" class="sort-select" onchange="applyFilters()">
+            <option value="">Default</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+            <option value="name-asc">Name: A–Z</option>
+            <option value="name-desc">Name: Z–A</option>
+          </select>
+        </div>
+        <button class="clear-btn" onclick="clearFilters()">
+          Clear all filters
+        </button>
+      </aside>
 
-      <!-- Products Section -->
-      <section class="products-section" id="products">
-        <h2>Featured Products</h2>
-        <div id="loadingProducts" class="loading">Loading products...</div>
+      <main>
+        <div class="prod-head">
+          <h2 class="prod-title">All Products</h2>
+          <span class="prod-meta" id="productCount"></span>
+        </div>
+        <div id="loadingProducts" class="loading-state">Loading products…</div>
         <div
           class="products-grid"
           id="productsGrid"
           style="display: none"
         ></div>
-      </section>
+      </main>
     </div>
 
-    <!-- Cart Modal -->
-    <div class="modal" id="cartModal">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2>Your Cart</h2>
-          <button class="close-btn" onclick="toggleCart()">&times;</button>
+    <div class="drawer-overlay" id="cartOverlay" onclick="toggleCart()"></div>
+    <div class="cart-drawer" id="cartModal">
+      <div class="drawer-head">
+        <div class="drawer-title-row">
+          <span class="drawer-title">Your Cart</span>
+          <span class="drawer-count-pill" id="cartItemCount">0 items</span>
         </div>
-        <div id="cartItems"></div>
-        <div class="cart-total" id="cartTotal" style="display: none">
-          <h3>Total:</h3>
-          <div class="total-price" id="totalPrice">$0.00</div>
+        <button class="icon-btn" onclick="toggleCart()">
+          <i data-lucide="x" style="width: 15px; height: 15px"></i>
+        </button>
+      </div>
+      <div class="drawer-body" id="cartItems"></div>
+      <div class="drawer-foot" id="cartTotal" style="display: none">
+        <div class="subtotal-row">
+          <span class="subtotal-lbl">Subtotal</span>
+          <span class="subtotal-val" id="totalPrice">$0.00</span>
         </div>
+        <p class="subtotal-note">Shipping & taxes calculated at checkout</p>
         <button
           class="checkout-btn"
           id="checkoutBtn"
           onclick="handleCheckout()"
-          style="display: none"
         >
-          Proceed to Checkout 🎉
+          <i data-lucide="lock" style="width: 14px; height: 14px"></i>
+          Checkout Securely
         </button>
       </div>
     </div>
 
-    <script src="class.js"></script>
+    <script src="script.js"></script>
     <script>
-      // Animated Navigation Script
-      document.addEventListener("DOMContentLoaded", () => {
-        const nav = document.querySelector("nav.animated-nav > ul");
-        const items = document.querySelectorAll("nav.animated-nav > ul li a");
-        let anim = null;
-        let currentActiveItem = null;
+      lucide.createIcons();
 
-        const animate = (from, to) => {
-          if (anim) clearInterval(anim);
-          const start = Date.now();
-          anim = setInterval(() => {
-            const p = Math.min((Date.now() - start) / 500, 1);
-            const e = 1 - Math.pow(1 - p, 3);
-            const x = from + (to - from) * e;
-            const y = -40 * (4 * e * (1 - e));
-            const r = 200 * Math.sin(p * Math.PI);
-            nav.style.setProperty("--translate-x", `${x}px`);
-            nav.style.setProperty("--translate-y", `${y}px`);
-            nav.style.setProperty("--rotate-x", `${r}deg`);
-            if (p >= 1) {
-              clearInterval(anim);
-              anim = null;
-              nav.style.setProperty("--translate-y", "0px");
-              nav.style.setProperty("--rotate-x", "0deg");
-            }
-          }, 16);
-        };
+      // Patch to update count + re-render icons
+      const _origRender = renderProducts;
+      renderProducts = function () {
+        _origRender();
+        const el = document.getElementById("productCount");
+        if (el) el.textContent = filteredProducts.length + " items";
+        lucide.createIcons();
+      };
 
-        const getCurrentPosition = () =>
-          parseFloat(nav.style.getPropertyValue("--translate-x")) || 0;
-
-        const getItemCenter = (item) => {
-          return (
-            item.getBoundingClientRect().left +
-            item.offsetWidth / 2 -
-            nav.getBoundingClientRect().left -
-            5
-          );
-        };
-
-        const moveToItem = (item) => {
-          const current = getCurrentPosition();
-          const center = getItemCenter(item);
-          animate(current, center);
-          nav.classList.add("show-indicator");
-        };
-
-        const setActiveItem = (item) => {
-          if (currentActiveItem) {
-            currentActiveItem.classList.remove("active");
-          }
-          currentActiveItem = item;
-          item.classList.add("active");
-          moveToItem(item);
-        };
-
-        const handleMouseLeave = () => {
-          if (currentActiveItem) {
-            moveToItem(currentActiveItem);
-          } else {
-            nav.classList.remove("show-indicator");
-            if (anim) clearInterval(anim);
-          }
-        };
-
-        items.forEach((item) => {
-          item.addEventListener("mouseenter", () => moveToItem(item));
-          item.addEventListener("mouseleave", handleMouseLeave);
-          item.addEventListener("click", (e) => {
-            e.preventDefault();
-            setActiveItem(item);
-            const target = item.getAttribute("href");
-            if (target && target.startsWith("#")) {
-              const element = document.querySelector(target);
-              if (element) {
-                element.scrollIntoView({ behavior: "smooth" });
-              }
-            }
-          });
-        });
-
-        nav.addEventListener("mouseleave", handleMouseLeave);
-
-        if (items.length > 0) {
-          setTimeout(() => {
-            setActiveItem(items[0]);
-          }, 100);
-        }
-      });
+      const _origCart = updateCartUI;
+      updateCartUI = function () {
+        _origCart();
+        const total = cart.reduce((s, i) => s + i.quantity, 0);
+        const lbl = document.getElementById("cartItemCount");
+        if (lbl) lbl.textContent = total + (total === 1 ? " item" : " items");
+        lucide.createIcons();
+      };
     </script>
   </body>
 </html>
